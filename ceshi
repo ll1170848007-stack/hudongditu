@@ -1,261 +1,228 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>李雷与徐晓婉的旅行地图</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-
+    
     <style>
-      /* 仅保留最基础的排版样式，不涉及高级美化 */
-      body,
-      html {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        display: flex;
-      }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; display: flex; font-family: sans-serif; background-color: #fdfaf6; }
+        
+        /* 规范修复：为地图和按钮建立一个独立的左侧父容器 */
+        #left-area { flex: 1; position: relative; height: 100vh; }
+        #map-container { width: 100%; height: 100%; }
+        
+        #info-panel {
+            width: 350px; height: 100vh; background: #fff; border-left: 1px solid #ddd;
+            padding: 20px; box-sizing: border-box; overflow-y: auto; display: none;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.05); z-index: 100;
+        }
 
-      /* 左侧地图区域 */
-      #map-container {
-        flex: 1;
-        height: 100vh;
-        position: relative;
-      }
-
-      /* 右侧信息面板（默认隐藏，点击城市后显示） */
-      #info-panel {
-        width: 350px;
-        height: 100vh;
-        background: #eee;
-        border-left: 2px solid #ccc;
-        padding: 20px;
-        box-sizing: border-box;
-        overflow-y: auto;
-        display: none;
-      }
-
-      #back-btn {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        padding: 10px;
-        z-index: 10;
-        display: none;
-      }
-
-      /* 足迹卡片基础样式 */
-      .spot-card {
-        background: white;
-        padding: 15px;
-        margin-bottom: 15px;
-        border: 1px solid #999;
-      }
-      .lock-area {
-        margin-top: 10px;
-        padding: 10px;
-        background: #ddd;
-      }
-      .photo-img {
-        width: 100%;
-        margin-top: 10px;
-        display: block;
-      }
+        #back-btn {
+            position: absolute; top: 20px; left: 20px; padding: 10px 15px; z-index: 999; display: none;
+            background: #ff7f50; color: white; border: none; border-radius: 4px; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .spot-card { background: #fafafa; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #eee; }
+        .spot-card h4 { margin: 0 0 10px 0; color: #333; }
+        .spot-card p { margin: 5px 0; font-size: 14px; color: #666; line-height: 1.5; }
+        
+        .lock-area { margin-top: 15px; padding: 15px; background: #ffe4e1; border-radius: 6px; text-align: center; }
+        .lock-area input { padding: 8px; width: 60%; border: 1px solid #ccc; border-radius: 4px; }
+        .lock-area button { padding: 8px 15px; background: #ff69b4; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px; }
+        
+        .photo-img { width: 100%; margin-top: 10px; border-radius: 6px; display: block; }
     </style>
-  </head>
-  <body>
-    <div id="map-container">
-      <button id="back-btn">返回全国地图</button>
+</head>
+<body>
+
+    <div id="left-area">
+        <button id="back-btn">返回全国地图</button>
+        <div id="map-container"></div>
     </div>
 
     <div id="info-panel">
-      <h2 id="panel-title">选择一个城市</h2>
-      <div id="panel-content"></div>
+        <h2 id="panel-title" style="color: #ff69b4;">选择一个城市</h2>
+        <div id="panel-content"></div>
     </div>
 
     <script>
-      const myChart = echarts.init(document.getElementById("map-container"));
-      const backBtn = document.getElementById("back-btn");
-      const infoPanel = document.getElementById("info-panel");
-      const panelTitle = document.getElementById("panel-title");
-      const panelContent = document.getElementById("panel-content");
-
-      let currentLevel = "china";
-      let globalTravelData = []; // 用来存放从 json 读取的数据
-
-      // 【新增逻辑】页面加载时，获取 data.json 的内容
-      async function loadTravelData() {
-        try {
-          const response = await fetch("data.json");
-          const jsonData = await response.json();
-          globalTravelData = jsonData.travelData;
-          console.log("数据加载成功！", globalTravelData);
-        } catch (error) {
-          console.error(
-            "读取 data.json 失败，请检查文件是否存在或格式是否正确",
-            error
-          );
-        }
-      }
-      loadTravelData();
-
-      // 渲染地图函数 (保留上一版的逻辑)
-      async function renderMap(mapName, mapKey) {
-        try {
-          let url =
-            mapKey === "china"
-              ? `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/china.json`
-              : `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/province/${mapKey}.json`;
-          const response = await fetch(url);
-          const geoJson = await response.json();
-          echarts.registerMap(mapName, geoJson);
-
-          const option = {
-            title: {
-              text: mapName === "china" ? "旅行足迹" : mapName,
-              left: "center",
-              top: 20,
-            },
-            tooltip: { trigger: "item", formatter: "{b}" },
-            series: [
+        const globalTravelData = [
+          {
+            province: "河南",
+            cities: [
               {
-                type: "map",
-                map: mapName,
-                roam: true,
-                scaleLimit: { min: 1, max: 5 },
-                itemStyle: { areaColor: "#e0e0e0", borderColor: "#fff" },
-                emphasis: { itemStyle: { areaColor: "#ffb6c1" } },
-              },
-            ],
-          };
-          myChart.setOption(option);
-        } catch (error) {
-          console.error("加载地图失败:", error);
-        }
-      }
-
-      renderMap("china", "china");
-
-      // 【修改逻辑】处理点击事件（下钻省份 & 点击城市看日记）
-      myChart.on("click", function (params) {
-        if (currentLevel === "china") {
-          const provinceName = params.name;
-          const provincePinyinMap = {
-            河南: "henan",
-            江苏: "jiangsu",
-            海南: "hainan",
-            浙江: "zhejiang",
-          };
-          const targetPinyin = provincePinyinMap[provinceName];
-
-          if (targetPinyin) {
-            currentLevel = "province";
-            renderMap(provinceName, targetPinyin);
-            backBtn.style.display = "block";
-            // 隐藏右侧面板
-            infoPanel.style.display = "none";
-          } else {
-            alert(`暂时还没有去过 ${provinceName} 哦！`);
-          }
-        } else if (currentLevel === "province") {
-          // 如果当前在省份地图，点击的则是“城市”（如：郑州市、徐州市）
-          // 城市名通常带个“市”字，我们去掉它以匹配 JSON 中的简写
-          const cityName = params.name.replace("市", "");
-          showCityRecord(cityName);
-        }
-      });
-
-      // 【新增逻辑】在右侧显示该城市的足迹
-      function showCityRecord(cityName) {
-        let foundCity = null;
-
-        // 在全局数据中寻找这个城市
-        for (let province of globalTravelData) {
-          if (province.cities) {
-            for (let city of province.cities) {
-              if (city.cityName === cityName) {
-                foundCity = city;
-                break;
+                cityName: "郑州",
+                spots: [
+                  {
+                    location: "世贸大厦B座附近",
+                    date: "2026-02",
+                    story: "在这里安顿了下来，不仅有烟火气十足的厨房，通勤也很方便。这片区域见证了我们很多平淡又温馨的日常。",
+                    photos: ["images/zhengzhou/home_1.jpg", "images/zhengzhou/home_2.jpg"]
+                  },
+                  {
+                    location: "中牟",
+                    date: "2026-03",
+                    story: "周末往返的时光，虽然在路上奔波，但一路上的风景和彼此的陪伴都很值得记录。",
+                    photos: ["images/zhengzhou/zhongmu_1.jpg"]
+                  }
+                ]
               }
-            }
+            ]
+          },
+          {
+            province: "江苏",
+            cities: [
+              {
+                cityName: "徐州",
+                spots: [
+                  {
+                    location: "苏宁广场",
+                    date: "2026-03",
+                    story: "在这里一起打卡了超多美食，这座城市留下了我们很棒的味蕾回忆。",
+                    photos: ["images/xuzhou/suning_1.jpg", "images/xuzhou/suning_2.jpg"]
+                  }
+                ]
+              }
+            ]
           }
-          if (foundCity) break;
+        ];
+
+        const myChart = echarts.init(document.getElementById('map-container'));
+        const backBtn = document.getElementById('back-btn');
+        const infoPanel = document.getElementById('info-panel');
+        const panelTitle = document.getElementById('panel-title');
+        const panelContent = document.getElementById('panel-content');
+        
+        let currentLevel = 'china'; 
+
+        async function renderMap(mapName, mapKey) {
+            try {
+                let url = mapKey === 'china' 
+                    ? `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/china.json` 
+                    : `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/province/${mapKey}.json`;
+                const response = await fetch(url);
+                const geoJson = await response.json();
+                echarts.registerMap(mapName, geoJson);
+
+                const option = {
+                    title: { text: mapName === 'china' ? '我们的旅行足迹' : mapName, left: 'center', top: 20 },
+                    tooltip: { trigger: 'item', formatter: '{b}' },
+                    series: [{
+                        type: 'map', map: mapName, roam: true, scaleLimit: { min: 1, max: 5 },
+                        itemStyle: { areaColor: '#e0e0e0', borderColor: '#fff' },
+                        emphasis: { itemStyle: { areaColor: '#ffb6c1' } }
+                    }]
+                };
+                myChart.setOption(option);
+            } catch (error) {
+                console.error("加载地图失败:", error);
+            }
         }
 
-        infoPanel.style.display = "block";
-        panelTitle.innerText = `${cityName} 的回忆`;
+        renderMap('china', 'china');
 
-        if (!foundCity || !foundCity.spots || foundCity.spots.length === 0) {
-          panelContent.innerHTML = `<p>这里暂时还没有记录故事哦~</p>`;
-          return;
-        }
+        myChart.on('click', function (params) {
+            if (currentLevel === 'china') {
+                const provinceName = params.name;
+                const provincePinyinMap = { '河南': 'henan', '江苏': 'jiangsu', '海南': 'hainan', '浙江': 'zhejiang' };
+                const targetPinyin = provincePinyinMap[provinceName];
+                
+                if (targetPinyin) {
+                    currentLevel = 'province';
+                    renderMap(provinceName, targetPinyin);
+                    backBtn.style.display = 'block';
+                    infoPanel.style.display = 'none'; 
+                } else {
+                    alert(`暂时还没有去过 ${provinceName} 哦！`);
+                }
+            } else if (currentLevel === 'province') {
+                // 确保触发时去掉市县后缀
+                const cityName = params.name.replace(/(市|县|区)$/, ''); 
+                showCityRecord(cityName);
+            }
+        });
 
-        // 生成足迹列表的 HTML
-        let htmlStr = "";
-        foundCity.spots.forEach((spot, index) => {
-          // 将图片数组转成字符串，方便传递给函数
-          const photosStr = spot.photos.join(",");
-          // 每个地点分配一个唯一ID
-          const uniqueId = cityName + index;
+        function showCityRecord(cityName) {
+            let foundCity = null;
+            for (let province of globalTravelData) {
+                if (province.cities) {
+                    for (let city of province.cities) {
+                        if (city.cityName === cityName) {
+                            foundCity = city;
+                            break;
+                        }
+                    }
+                }
+                if (foundCity) break;
+            }
 
-          htmlStr += `
+            // 强制将地图容器宽度设为响应式，为右侧面板腾出空间
+            infoPanel.style.display = 'block';
+            myChart.resize(); // 通知 ECharts 容器尺寸发生变化
+
+            panelTitle.innerText = `${cityName} 的回忆`;
+
+            if (!foundCity || !foundCity.spots || foundCity.spots.length === 0) {
+                panelContent.innerHTML = `<p style="color:#999; text-align:center; margin-top:30px;">我们还没有在这里写下故事哦~</p>`;
+                return;
+            }
+
+            let htmlStr = '';
+            foundCity.spots.forEach((spot, index) => {
+                const photosStr = spot.photos.join(',');
+                const uniqueId = 'spot_' + index; 
+
+                htmlStr += `
                     <div class="spot-card">
                         <h4>📍 ${spot.location}</h4>
                         <p>📅 ${spot.date}</p>
                         <p>📝 ${spot.story}</p>
                         
                         <div class="lock-area" id="lock-${uniqueId}">
-                            <input type="password" id="pwd-${uniqueId}" placeholder="输入密码看照片">
+                            <p style="margin-top:0; font-size:12px; color:#c71585;">输入密码查看照片</p>
+                            <input type="password" id="pwd-${uniqueId}" placeholder="请输入 2026">
                             <button onclick="unlockPhotos('${uniqueId}', '${photosStr}')">解锁</button>
                         </div>
                         
                         <div id="photos-${uniqueId}" style="display:none;"></div>
                     </div>
                 `;
+            });
+
+            panelContent.innerHTML = htmlStr;
+        }
+
+        window.unlockPhotos = function(id, photosStr) {
+            const pwdInput = document.getElementById(`pwd-${id}`).value;
+            if (pwdInput === '2026') {
+                document.getElementById(`lock-${id}`).style.display = 'none';
+                const photoArea = document.getElementById(`photos-${id}`);
+                photoArea.style.display = 'block';
+                
+                if (photosStr) {
+                    const urls = photosStr.split(',');
+                    let imgHtml = urls.map(url => `<img src="${url}" class="photo-img" alt="回忆照片">`).join('');
+                    photoArea.innerHTML = imgHtml;
+                } else {
+                    photoArea.innerHTML = "<p>尚未上传照片~</p>";
+                }
+            } else {
+                alert('密码不对哦！');
+            }
+        };
+
+        backBtn.addEventListener('click', () => {
+            currentLevel = 'china';
+            renderMap('china', 'china');
+            backBtn.style.display = 'none';
+            infoPanel.style.display = 'none'; 
+            myChart.resize();
         });
 
-        panelContent.innerHTML = htmlStr;
-      }
-
-      // 【新增逻辑】全局解锁函数
-      window.unlockPhotos = function (id, photosStr) {
-        const pwdInput = document.getElementById(`pwd-${id}`).value;
-        if (pwdInput === "2026") {
-          // 隐藏锁，显示照片容器
-          document.getElementById(`lock-${id}`).style.display = "none";
-          const photoArea = document.getElementById(`photos-${id}`);
-          photoArea.style.display = "block";
-
-          // 渲染照片
-          if (photosStr) {
-            const urls = photosStr.split(",");
-            let imgHtml = urls
-              .map(
-                (url) => `<img src="${url}" class="photo-img" alt="旅行照片">`
-              )
-              .join("");
-            photoArea.innerHTML = imgHtml;
-          } else {
-            photoArea.innerHTML = "<p>没有上传照片文件~</p>";
-          }
-        } else {
-          alert("密码不正确哦，请重试！");
-        }
-      };
-
-      // 返回全国
-      backBtn.addEventListener("click", () => {
-        currentLevel = "china";
-        renderMap("china", "china");
-        backBtn.style.display = "none";
-        infoPanel.style.display = "none"; // 收起右侧面板
-      });
-
-      window.addEventListener("resize", () => {
-        myChart.resize();
-      });
+        window.addEventListener('resize', () => { myChart.resize(); });
     </script>
-  </body>
+</body>
 </html>
