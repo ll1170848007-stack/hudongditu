@@ -8,31 +8,16 @@
     
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; display: flex; font-family: sans-serif; background-color: #fdfaf6; }
-        
-        /* 规范修复：为地图和按钮建立一个独立的左侧父容器 */
         #left-area { flex: 1; position: relative; height: 100vh; }
         #map-container { width: 100%; height: 100%; }
-        
-        #info-panel {
-            width: 350px; height: 100vh; background: #fff; border-left: 1px solid #ddd;
-            padding: 20px; box-sizing: border-box; overflow-y: auto; display: none;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.05); z-index: 100;
-        }
-
-        #back-btn {
-            position: absolute; top: 20px; left: 20px; padding: 10px 15px; z-index: 999; display: none;
-            background: #ff7f50; color: white; border: none; border-radius: 4px; cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
+        #info-panel { width: 350px; height: 100vh; background: #fff; border-left: 1px solid #ddd; padding: 20px; box-sizing: border-box; overflow-y: auto; display: none; box-shadow: -2px 0 10px rgba(0,0,0,0.05); z-index: 100; }
+        #back-btn { position: absolute; top: 20px; left: 20px; padding: 10px 15px; z-index: 999; display: none; background: #ff7f50; color: white; border: none; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .spot-card { background: #fafafa; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #eee; }
         .spot-card h4 { margin: 0 0 10px 0; color: #333; }
         .spot-card p { margin: 5px 0; font-size: 14px; color: #666; line-height: 1.5; }
-        
         .lock-area { margin-top: 15px; padding: 15px; background: #ffe4e1; border-radius: 6px; text-align: center; }
         .lock-area input { padding: 8px; width: 60%; border: 1px solid #ccc; border-radius: 4px; }
         .lock-area button { padding: 8px 15px; background: #ff69b4; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px; }
-        
         .photo-img { width: 100%; margin-top: 10px; border-radius: 6px; display: block; }
     </style>
 </head>
@@ -59,21 +44,14 @@
                   {
                     location: "世贸大厦B座附近",
                     date: "2026-02",
-                    story: "在这里安顿了下来，不仅有烟火气十足的厨房，通勤也很方便。这片区域见证了我们很多平淡又温馨的日常。",
+                    story: "在这里安顿了下来，通勤也很方便。这片区域见证了我们很多平淡又温馨的日常。",
                     photos: ["images/zhengzhou/home_1.jpg", "images/zhengzhou/home_2.jpg"]
-                  },
-                  {
-                    location: "中牟",
-                    date: "2026-03",
-                    story: "周末往返的时光，虽然在路上奔波，但一路上的风景和彼此的陪伴都很值得记录。",
-                    photos: ["images/zhengzhou/zhongmu_1.jpg"]
                   }
                 ]
               }
             ]
           },
           {
-{
             province: "江苏",
             cities: [
               {
@@ -98,6 +76,7 @@
               }
             ]
           }
+        ];
 
         const myChart = echarts.init(document.getElementById('map-container'));
         const backBtn = document.getElementById('back-btn');
@@ -148,7 +127,6 @@
                     alert(`暂时还没有去过 ${provinceName} 哦！`);
                 }
             } else if (currentLevel === 'province') {
-                // 确保触发时去掉市县后缀
                 const cityName = params.name.replace(/(市|县|区)$/, ''); 
                 showCityRecord(cityName);
             }
@@ -168,9 +146,8 @@
                 if (foundCity) break;
             }
 
-            // 强制将地图容器宽度设为响应式，为右侧面板腾出空间
             infoPanel.style.display = 'block';
-            myChart.resize(); // 通知 ECharts 容器尺寸发生变化
+            myChart.resize(); 
 
             panelTitle.innerText = `${cityName} 的回忆`;
 
