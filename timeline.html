@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>人生旅程 - 李雷与徐晓婉</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#874e58",
+                        "primary-container": "#ffb6c1",
+                        "secondary-container": "#fed9b8",
+                        "tertiary-container": "#a7d4b8",
+                        "surface": "#fbf9f1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c17",
+                        "on-surface-variant": "#514345",
+                        "tertiary": "#3e6750"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "handwriting": ["Ma Shan Zheng", "cursive"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-image: radial-gradient(circle at top left, #f0eee6, #fbf9f1);
+            background-attachment: fixed;
+        }
+        .ambient-shadow { box-shadow: 0 10px 32px 0 rgba(135, 78, 88, 0.05); }
+        .hover-ambient-shadow:hover { box-shadow: 0 15px 40px 0 rgba(135, 78, 88, 0.1); transform: translateY(-2px); }
+        .timeline-line {
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #d6c2c3, transparent);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased min-h-screen flex flex-col pt-24 pb-32">
+
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-3 max-w-6xl mx-auto rounded-full mt-4 mx-4 bg-white/80 backdrop-blur-xl shadow-sm text-sm font-medium">
+    <div class="text-2xl font-bold italic text-pink-500">Our Journey</div>
+    <ul class="hidden md:flex gap-6 items-center">
+        <li><a class="text-stone-500 hover:text-pink-400 transition-colors" href="index.html">首页</a></li>
+        <li><a class="text-stone-500 hover:text-pink-400 transition-colors" href="map.html">旅行地图</a></li>
+        <li><a class="text-pink-600 border-b-2 border-pink-200 pb-1" href="timeline.html">人生旅程</a></li>
+        <li><a class="text-stone-500 hover:text-pink-400 transition-colors" href="#">照片画廊</a></li>
+    </ul>
+    <button class="text-pink-400 p-2 rounded-full hover:bg-stone-100 transition-colors">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+    </button>
+</nav>
+
+<main class="flex-grow w-full max-w-5xl mx-auto px-4 md:px-8 relative z-10">
+    <div class="text-center mb-16 relative">
+        <h1 class="text-4xl md:text-6xl font-headline font-bold text-primary mb-4 tracking-tight leading-tight">
+            我们的人生旅程
+        </h1>
+        <p class="text-lg md:text-xl text-on-surface-variant font-body max-w-2xl mx-auto font-medium">
+            时间轴上的每一个节点，都是我们携手走过的风景。
+        </p>
+    </div>
+
+    <div class="relative" id="timeline-wrapper">
+        <div class="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 timeline-line z-0 hidden md:block"></div>
+        
+        <div id="timeline-content"></div>
+    </div>
+</main>
+
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-full px-4 py-2 bg-[#f5f4ec]/80 backdrop-blur-2xl shadow-2xl flex justify-around items-center z-50 md:hidden border border-white">
+    <a href="map.html" class="flex flex-col items-center justify-center text-stone-400 w-12 h-12 hover:bg-white rounded-full transition-colors active:scale-90">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">explore</span>
+        <span class="text-[9px] font-bold mt-1">地图</span>
+    </a>
+    <a href="timeline.html" class="flex flex-col items-center justify-center bg-primary text-white rounded-full w-12 h-12 scale-110 shadow-lg">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+        <span class="text-[9px] font-bold mt-1">旅程</span>
+    </a>
+    <a href="#" class="flex flex-col items-center justify-center text-stone-400 w-12 h-12 hover:bg-white rounded-full transition-colors active:scale-90">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">photo_library</span>
+        <span class="text-[9px] font-bold mt-1">画廊</span>
+    </a>
+</nav>
+
+<script>
+    // --- 1. 全局回忆数据 (按照最新时间排在前面) ---
+    const timelineData = [
+        {
+            date: "2026-04",
+            title: "苏宁广场与周边打卡",
+            location: "江苏, 徐州",
+            story: "在这里一起打卡了超多美食，这座城市留下了我们很棒的味蕾回忆。无论是烟火气十足的烧烤，还是高铁上的沿途风景，都是最珍贵的记录。",
+            img: "images/xuzhou/xuzhou-2604-01.jpg",
+            tags: ["美食探店", "高铁沿途"]
+        },
+        {
+            date: "2026-03",
+            title: "中牟往返的时光",
+            location: "河南, 郑州",
+            story: "周末往返的时光，虽然在路上奔波，但一路上的风景和彼此的陪伴都很值得记录。",
+            img: "images/zhengzhou/zhongmu_1.jpg",
+            tags: ["周末陪伴", "沿途风景"]
+        },
+        {
+            date: "2026-02",
+            title: "安顿世贸大厦B座",
+            location: "河南, 郑州",
+            story: "在这里安顿了下来，不仅有烟火气十足的厨房，通勤也很方便。这片区域见证了我们很多平淡又温馨的日常。",
+            img: "images/zhengzhou/home_1.jpg",
+            tags: ["温馨日常", "生活烟火"]
+        }
+    ];
+
+    // --- 2. 数据处理与渲染逻辑 ---
+    function renderTimeline() {
+        const container = document.getElementById('timeline-content');
+        let htmlStr = '';
+        let currentYear = '';
+
+        // 将数字月份转为中文
+        const monthMap = {"01":"一月","02":"二月","03":"三月","04":"四月","05":"五月","06":"六月","07":"七月","08":"八月","09":"九月","10":"十月","11":"十一月","12":"十二月"};
+
+        timelineData.forEach((item, index) => {
+            const [year, month] = item.date.split('-');
+            const monthText = monthMap[month] || `${month}月`;
+
+            // 如果遇到新的年份，插入年份分割线
+            if (year !== currentYear) {
+                htmlStr += `
+                <div class="mb-16 relative z-10">
+                    <div class="flex items-center justify-center mb-10">
+                        <div class="bg-white ambient-shadow rounded-full px-8 py-3 text-2xl font-headline font-bold text-primary flex items-center gap-3 border border-pink-50">
+                            <span class="material-symbols-outlined text-tertiary">spa</span>
+                            ${year}
+                            <span class="material-symbols-outlined text-tertiary">spa</span>
+                        </div>
+                    </div>
+                </div>`;
+                currentYear = year;
+            }
+
+            // 判断是左侧卡片还是右侧卡片 (偶数在右，奇数在左)
+            const isRightCard = index % 2 === 0;
+
+            if (isRightCard) {
+                // 桌面端卡片在右侧 (默认首个)
+                htmlStr += `
+                <div class="flex flex-col md:flex-row items-center w-full mb-16 relative group">
+                    <div class="w-full md:w-1/2 md:pr-12 text-right hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <div class="text-xl font-bold text-primary mb-1">${monthText}</div>
+                        <div class="text-sm text-stone-500 flex items-center justify-end gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span>${item.location}</div>
+                    </div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2 items-center justify-center z-20 hidden md:flex">
+                        <div class="w-4 h-4 bg-primary-container rounded-full border-2 border-white shadow-md group-hover:scale-150 transition-transform duration-300"></div>
+                    </div>
+                    <div class="w-full md:w-1/2 md:pl-12">
+                        <div class="bg-white rounded-2xl p-4 ambient-shadow hover-ambient-shadow transition-all duration-500 border border-stone-100">
+                            <div class="aspect-[4/3] rounded-xl overflow-hidden mb-5 relative">
+                                <img src="${item.img}" onerror="this.src='https://picsum.photos/800/600?random=${index}'" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700" alt="${item.title}"/>
+                                <div class="absolute top-3 left-3 md:hidden bg-white/90 backdrop-blur-md rounded-full px-3 py-1 text-xs font-bold text-primary shadow-sm">${year} ${monthText}</div>
+                            </div>
+                            <h3 class="text-2xl font-bold text-stone-800 mb-3">${item.title}</h3>
+                            <p class="text-stone-500 text-sm leading-relaxed mb-4">${item.story}</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${item.tags.map(tag => `<span class="bg-pink-50 text-pink-600 text-xs font-bold px-3 py-1.5 rounded-lg">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            } else {
+                // 桌面端卡片在左侧
+                htmlStr += `
+                <div class="flex flex-col md:flex-row items-center w-full mb-16 relative group">
+                    <div class="w-full md:w-1/2 md:pr-12 md:order-1 order-2 mt-4 md:mt-0">
+                        <div class="bg-white rounded-2xl p-4 ambient-shadow hover-ambient-shadow transition-all duration-500 border border-stone-100">
+                            <div class="aspect-[4/3] rounded-xl overflow-hidden mb-5 relative">
+                                <img src="${item.img}" onerror="this.src='https://picsum.photos/800/600?random=${index}'" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700" alt="${item.title}"/>
+                                <div class="absolute top-3 left-3 md:hidden bg-white/90 backdrop-blur-md rounded-full px-3 py-1 text-xs font-bold text-primary shadow-sm">${year} ${monthText}</div>
+                            </div>
+                            <h3 class="text-2xl font-bold text-stone-800 mb-3">${item.title}</h3>
+                            <p class="text-stone-500 text-sm leading-relaxed mb-4">${item.story}</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${item.tags.map(tag => `<span class="bg-orange-50 text-orange-600 text-xs font-bold px-3 py-1.5 rounded-lg">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2 items-center justify-center z-20 hidden md:flex">
+                        <div class="w-4 h-4 bg-secondary-container rounded-full border-2 border-white shadow-md group-hover:scale-150 transition-transform duration-300"></div>
+                    </div>
+                    <div class="w-full md:w-1/2 md:pl-12 text-left md:order-2 order-1 hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <div class="text-xl font-bold text-primary mb-1">${monthText}</div>
+                        <div class="text-sm text-stone-500 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span>${item.location}</div>
+                    </div>
+                </div>`;
+            }
+        });
+
+        container.innerHTML = htmlStr;
+    }
+
+    // 执行渲染
+    document.addEventListener('DOMContentLoaded', renderTimeline);
+</script>
+</body>
+</html>
