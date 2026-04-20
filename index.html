@@ -1,228 +1,195 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html class="light" lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>李雷与徐晓婉的旅行地图</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-    
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; display: flex; font-family: sans-serif; background-color: #fdfaf6; }
-        
-        /* 规范修复：为地图和按钮建立一个独立的左侧父容器 */
-        #left-area { flex: 1; position: relative; height: 100vh; }
-        #map-container { width: 100%; height: 100%; }
-        
-        #info-panel {
-            width: 350px; height: 100vh; background: #fff; border-left: 1px solid #ddd;
-            padding: 20px; box-sizing: border-box; overflow-y: auto; display: none;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.05); z-index: 100;
-        }
-
-        #back-btn {
-            position: absolute; top: 20px; left: 20px; padding: 10px 15px; z-index: 999; display: none;
-            background: #ff7f50; color: white; border: none; border-radius: 4px; cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .spot-card { background: #fafafa; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #eee; }
-        .spot-card h4 { margin: 0 0 10px 0; color: #333; }
-        .spot-card p { margin: 5px 0; font-size: 14px; color: #666; line-height: 1.5; }
-        
-        .lock-area { margin-top: 15px; padding: 15px; background: #ffe4e1; border-radius: 6px; text-align: center; }
-        .lock-area input { padding: 8px; width: 60%; border: 1px solid #ccc; border-radius: 4px; }
-        .lock-area button { padding: 8px 15px; background: #ff69b4; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px; }
-        
-        .photo-img { width: 100%; margin-top: 10px; border-radius: 6px; display: block; }
-    </style>
-</head>
-<body>
-
-    <div id="left-area">
-        <button id="back-btn">返回全国地图</button>
-        <div id="map-container"></div>
-    </div>
-
-    <div id="info-panel">
-        <h2 id="panel-title" style="color: #ff69b4;">选择一个城市</h2>
-        <div id="panel-content"></div>
-    </div>
-
-    <script>
-        const globalTravelData = [
-          {
-            province: "河南",
-            cities: [
-              {
-                cityName: "郑州",
-                spots: [
-                  {
-                    location: "世贸大厦B座附近",
-                    date: "2026-02",
-                    story: "在这里安顿了下来，不仅有烟火气十足的厨房，通勤也很方便。这片区域见证了我们很多平淡又温馨的日常。",
-                    photos: ["images/zhengzhou/home_1.jpg", "images/zhengzhou/home_2.jpg"]
-                  },
-                  {
-                    location: "中牟",
-                    date: "2026-03",
-                    story: "周末往返的时光，虽然在路上奔波，但一路上的风景和彼此的陪伴都很值得记录。",
-                    photos: ["images/zhengzhou/zhongmu_1.jpg"]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            province: "江苏",
-            cities: [
-              {
-                cityName: "徐州",
-                spots: [
-                  {
-                    location: "苏宁广场",
-                    date: "2026-03",
-                    story: "在这里一起打卡了超多美食，这座城市留下了我们很棒的味蕾回忆。",
-                    photos: ["images/xuzhou/suning_1.jpg", "images/xuzhou/suning_2.jpg"]
-                  }
-                ]
-              }
-            ]
-          }
-        ];
-
-        const myChart = echarts.init(document.getElementById('map-container'));
-        const backBtn = document.getElementById('back-btn');
-        const infoPanel = document.getElementById('info-panel');
-        const panelTitle = document.getElementById('panel-title');
-        const panelContent = document.getElementById('panel-content');
-        
-        let currentLevel = 'china'; 
-
-        async function renderMap(mapName, mapKey) {
-            try {
-                let url = mapKey === 'china' 
-                    ? `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/china.json` 
-                    : `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/province/${mapKey}.json`;
-                const response = await fetch(url);
-                const geoJson = await response.json();
-                echarts.registerMap(mapName, geoJson);
-
-                const option = {
-                    title: { text: mapName === 'china' ? '我们的旅行足迹' : mapName, left: 'center', top: 20 },
-                    tooltip: { trigger: 'item', formatter: '{b}' },
-                    series: [{
-                        type: 'map', map: mapName, roam: true, scaleLimit: { min: 1, max: 5 },
-                        itemStyle: { areaColor: '#e0e0e0', borderColor: '#fff' },
-                        emphasis: { itemStyle: { areaColor: '#ffb6c1' } }
-                    }]
-                };
-                myChart.setOption(option);
-            } catch (error) {
-                console.error("加载地图失败:", error);
-            }
-        }
-
-        renderMap('china', 'china');
-
-        myChart.on('click', function (params) {
-            if (currentLevel === 'china') {
-                const provinceName = params.name;
-                const provincePinyinMap = { '河南': 'henan', '江苏': 'jiangsu', '海南': 'hainan', '浙江': 'zhejiang' };
-                const targetPinyin = provincePinyinMap[provinceName];
-                
-                if (targetPinyin) {
-                    currentLevel = 'province';
-                    renderMap(provinceName, targetPinyin);
-                    backBtn.style.display = 'block';
-                    infoPanel.style.display = 'none'; 
-                } else {
-                    alert(`暂时还没有去过 ${provinceName} 哦！`);
-                }
-            } else if (currentLevel === 'province') {
-                // 确保触发时去掉市县后缀
-                const cityName = params.name.replace(/(市|县|区)$/, ''); 
-                showCityRecord(cityName);
-            }
-        });
-
-        function showCityRecord(cityName) {
-            let foundCity = null;
-            for (let province of globalTravelData) {
-                if (province.cities) {
-                    for (let city of province.cities) {
-                        if (city.cityName === cityName) {
-                            foundCity = city;
-                            break;
-                        }
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>李雷与徐晓婉的专属旅程</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        // ... (保留了你原有的所有颜色配置)
+                        "outline-variant": "#d6c2c3",
+                        "surface-container-highest": "#e4e3db",
+                        "surface-variant": "#e4e3db",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1b1c17",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdcbe",
+                        "surface-tint": "#874e58",
+                        "on-primary-fixed": "#360c17",
+                        "on-background": "#1b1c17",
+                        "tertiary-fixed": "#c0edd0",
+                        "surface": "#fbf9f1",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#264f39",
+                        "on-tertiary-fixed": "#002112",
+                        "tertiary-container": "#a7d4b8",
+                        "secondary-container": "#fed9b8",
+                        "on-secondary-fixed-variant": "#5a422a",
+                        "on-secondary-fixed": "#2a1704",
+                        "primary-container": "#ffb6c1",
+                        "tertiary-fixed-dim": "#a4d1b4",
+                        "secondary": "#74593f",
+                        "primary-fixed": "#ffd9de",
+                        "primary": "#874e58",
+                        "surface-container": "#f0eee6",
+                        "inverse-on-surface": "#f3f1e9",
+                        "primary-fixed-dim": "#fcb3be",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#eae8e0",
+                        "surface-dim": "#dcdad2",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fbf9f1",
+                        "background": "#fbf9f1",
+                        "on-primary-fixed-variant": "#6b3741",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#345d46",
+                        "on-secondary-container": "#795d43",
+                        "outline": "#847375",
+                        "inverse-primary": "#fcb3be",
+                        "on-primary-container": "#7b444e",
+                        "tertiary": "#3e6750",
+                        "secondary-fixed-dim": "#e3c0a0",
+                        "on-surface-variant": "#514345",
+                        "surface-container-low": "#f5f4ec",
+                        "inverse-surface": "#30312c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "label": ["Plus Jakarta Sans", "sans-serif"],
+                        /* 增加中文手写体备用 */
+                        "handwriting": ["Caveat", "Ma Shan Zheng", "cursive"]
                     }
                 }
-                if (foundCity) break;
             }
-
-            // 强制将地图容器宽度设为响应式，为右侧面板腾出空间
-            infoPanel.style.display = 'block';
-            myChart.resize(); // 通知 ECharts 容器尺寸发生变化
-
-            panelTitle.innerText = `${cityName} 的回忆`;
-
-            if (!foundCity || !foundCity.spots || foundCity.spots.length === 0) {
-                panelContent.innerHTML = `<p style="color:#999; text-align:center; margin-top:30px;">我们还没有在这里写下故事哦~</p>`;
-                return;
-            }
-
-            let htmlStr = '';
-            foundCity.spots.forEach((spot, index) => {
-                const photosStr = spot.photos.join(',');
-                const uniqueId = 'spot_' + index; 
-
-                htmlStr += `
-                    <div class="spot-card">
-                        <h4>📍 ${spot.location}</h4>
-                        <p>📅 ${spot.date}</p>
-                        <p>📝 ${spot.story}</p>
-                        
-                        <div class="lock-area" id="lock-${uniqueId}">
-                            <p style="margin-top:0; font-size:12px; color:#c71585;">输入密码查看照片</p>
-                            <input type="password" id="pwd-${uniqueId}" placeholder="请输入 2026">
-                            <button onclick="unlockPhotos('${uniqueId}', '${photosStr}')">解锁</button>
-                        </div>
-                        
-                        <div id="photos-${uniqueId}" style="display:none;"></div>
-                    </div>
-                `;
-            });
-
-            panelContent.innerHTML = htmlStr;
         }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            background-color: #fbf9f1;
+            color: #1b1c17;
+        }
+        .hero-bg {
+            background: #fdf5e6;
+        }
+        /* 轮播图平滑过渡辅助 */
+        #carousel-inner {
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+</style>
+</head>
+<body class="min-h-[1024px] relative overflow-hidden flex flex-col justify-between items-center antialiased bg-background-light">
 
-        window.unlockPhotos = function(id, photosStr) {
-            const pwdInput = document.getElementById(`pwd-${id}`).value;
-            if (pwdInput === '2026') {
-                document.getElementById(`lock-${id}`).style.display = 'none';
-                const photoArea = document.getElementById(`photos-${id}`);
-                photoArea.style.display = 'block';
-                
-                if (photosStr) {
-                    const urls = photosStr.split(',');
-                    let imgHtml = urls.map(url => `<img src="${url}" class="photo-img" alt="回忆照片">`).join('');
-                    photoArea.innerHTML = imgHtml;
-                } else {
-                    photoArea.innerHTML = "<p>尚未上传照片~</p>";
-                }
-            } else {
-                alert('密码不对哦！');
-            }
-        };
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-3 max-w-6xl mx-auto rounded-full mt-4 mx-4 bg-white/70 dark:bg-stone-900/70 backdrop-blur-xl shadow-sm font-plus-jakarta text-sm tracking-wide font-medium">
+    <div class="text-2xl font-bold italic text-pink-500 dark:text-pink-300">
+        Our Journey
+    </div>
+    <ul class="flex gap-6 items-center">
+        <li><a class="text-pink-600 dark:text-pink-200 border-b-2 border-pink-200 pb-1 scale-95 transition-transform" href="map.html">旅行地图</a></li>
+        <li><a class="text-stone-500 dark:text-stone-400 hover:text-pink-400 transition-colors duration-300 scale-95 transition-transform" href="#">人生旅程</a></li>
+        <li><a class="text-stone-500 dark:text-stone-400 hover:text-pink-400 transition-colors duration-300 scale-95 transition-transform" href="#">照片画廊</a></li>
+        <li><a class="text-stone-500 dark:text-stone-400 hover:text-pink-400 transition-colors duration-300 scale-95 transition-transform" href="#">关于我们</a></li>
+    </ul>
+    <button class="text-pink-400 dark:text-pink-300 hover:text-pink-400 transition-colors duration-300 scale-95 transition-transform flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high transition-colors">
+        <span class="material-symbols-outlined" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+    </button>
+</nav>
 
-        backBtn.addEventListener('click', () => {
-            currentLevel = 'china';
-            renderMap('china', 'china');
-            backBtn.style.display = 'none';
-            infoPanel.style.display = 'none'; 
-            myChart.resize();
+<main class="flex-grow flex flex-col items-center justify-center w-full z-10 px-4 relative mt-24 max-w-6xl mx-auto h-[716px]">
+    
+    <div class="absolute inset-0 w-full h-full overflow-hidden z-[-1] rounded-[3rem] shadow-2xl">
+        <div class="flex w-full h-full" id="carousel-inner">
+            <img alt="郑州世贸的回忆" class="w-full h-full object-cover flex-shrink-0" src="images/zhengzhou/home_1.jpg" onerror="this.src='https://images.unsplash.com/photo-1518599904199-0ca897819ddb?q=80&w=1000&auto=format&fit=crop'">
+            <img alt="徐州苏宁的回忆" class="w-full h-full object-cover flex-shrink-0" src="images/xuzhou/suning_1.jpg" onerror="this.src='https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1000&auto=format&fit=crop'">
+        </div>
+        <div class="absolute inset-0 bg-black/30"></div> 
+    </div>
+
+    <div class="text-center flex flex-col items-center gap-6 max-w-2xl bg-surface/70 backdrop-blur-md p-12 rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(135,78,88,0.2)] border border-white/50 relative">
+        <p class="font-handwriting text-4xl text-primary -rotate-2 -mb-4 opacity-90">Since 2026</p>
+        <h1 class="font-headline text-5xl md:text-7xl font-extrabold text-on-surface leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-primary to-primary-container text-primary">
+            我们的专属回忆
+        </h1>
+        <p class="font-body text-body-lg text-stone-700 max-w-md mx-auto leading-relaxed mt-2 font-medium">
+            每一张快照，每一张票根，每一个相伴的清晨。<br>这本纪念册，记录了成就我们的点点滴滴。
+        </p>
+        
+        <button onclick="window.location.href='map.html'" class="mt-6 px-10 py-4 bg-primary text-on-primary rounded-full font-label font-bold tracking-wide text-lg shadow-[0_0_20px_rgba(135,78,88,0.5)] hover:shadow-[0_0_40px_rgba(135,78,88,0.7)] transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 hover:bg-on-primary-fixed-variant flex items-center gap-3 relative overflow-hidden group">
+            <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
+            <span>开启回忆</span>
+            <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
+        </button>
+    </div>
+
+    <div class="absolute inset-y-0 left-4 right-4 flex justify-between items-center pointer-events-none z-20">
+        <button id="prev-btn" class="pointer-events-auto p-3 bg-white/40 backdrop-blur-md rounded-full text-stone-800 hover:bg-white/70 transition-colors shadow-lg">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button id="next-btn" class="pointer-events-auto p-3 bg-white/40 backdrop-blur-md rounded-full text-stone-800 hover:bg-white/70 transition-colors shadow-lg">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+    </div>
+</main>
+
+<footer class="w-full py-12 px-6 flex flex-col items-center gap-6 bg-[#f5f4ec]/80 backdrop-blur-sm dark:bg-stone-950 rounded-t-[3rem] mt-20 tonal-shift-bg z-10 relative border-t border-white/20">
+    <div class="text-lg font-semibold text-stone-800 dark:text-stone-100 font-plus-jakarta">
+        Our Journey
+    </div>
+    <ul class="flex flex-wrap justify-center gap-6">
+        <li><a class="font-plus-jakarta text-sm italic text-stone-500 hover:translate-y-[-2px] hover:text-pink-400 transition-all smooth-scroll text-pink-600 font-bold" href="map.html">旅行地图</a></li>
+        <li><a class="font-plus-jakarta text-sm italic text-stone-500 hover:translate-y-[-2px] hover:text-pink-400 transition-all smooth-scroll" href="#">人生旅程</a></li>
+        <li><a class="font-plus-jakarta text-sm italic text-stone-500 hover:translate-y-[-2px] hover:text-pink-400 transition-all smooth-scroll" href="#">照片画廊</a></li>
+        <li><a class="font-plus-jakarta text-sm italic text-stone-500 hover:translate-y-[-2px] hover:text-pink-400 transition-all smooth-scroll" href="#">关于我们</a></li>
+    </ul>
+    <p class="font-handwriting text-2xl text-pink-500 dark:text-pink-300 text-center mt-2">
+        每一个瞬间都是命运的馈赠。用心浇筑，以爱封存。
+    </p>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const carousel = document.getElementById('carousel-inner');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        let currentIndex = 0;
+        const totalItems = carousel.children.length;
+
+        // 向右切换
+        nextBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % totalItems;
+            carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
         });
 
-        window.addEventListener('resize', () => { myChart.resize(); });
-    </script>
+        // 向左切换
+        prevBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+            carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+        });
+
+        // 可选：添加自动轮播（每5秒自动翻页）
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % totalItems;
+            carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+        }, 5000);
+    });
+</script>
+
 </body>
 </html>
