@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html class="light" lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>李雷与徐晓婉的专属旅程</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-<script id="tailwind-config">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <title>我们的回忆 - 专属纪念</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -29,12 +29,16 @@
             }
         }
     </script>
-<style>
+    <style>
         body {
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #fbf9f1;
             color: #1b1c17;
+            /* 阻止移动端左右滑动和越界拉伸 */
+            overflow-x: hidden;
+            overscroll-behavior-y: none;
         }
+        
         .hero-bg {
             background: linear-gradient(-45deg, #fdf5e6, #fff3e0, #ffe4e1, #fed9b8);
             background-size: 400% 400%;
@@ -45,9 +49,11 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        
         #carousel-inner {
-            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
         /* 飘落花瓣动画 */
         @keyframes fall {
             0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
@@ -64,78 +70,135 @@
             height: 14px;
             animation: fall linear infinite;
         }
-</style>
+
+        /* 新增：灵动爱心上升动画 */
+        @keyframes floatUpHeart {
+            0% { transform: translateY(100vh) scale(0.5) rotate(-15deg); opacity: 0; }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.4; }
+            100% { transform: translateY(-20vh) scale(1.2) rotate(15deg); opacity: 0; }
+        }
+        .heart-float {
+            position: absolute;
+            bottom: -10%;
+            animation: floatUpHeart linear infinite;
+            z-index: 1;
+            filter: drop-shadow(0 0 8px rgba(255, 182, 193, 0.5));
+        }
+    </style>
 </head>
 <body class="hero-bg min-h-screen relative overflow-hidden flex flex-col justify-between items-center antialiased">
 
-<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-3 max-w-6xl mx-auto rounded-full mt-4 mx-4 bg-white/70 backdrop-blur-xl shadow-sm text-sm font-medium">
-    <div class="text-2xl font-bold italic text-pink-500">Our Journey</div>
-    <ul class="flex gap-6 items-center">
-        <li><a class="text-pink-600 border-b-2 border-pink-200 pb-1" href="map.html">旅行地图</a></li>
+<!-- 桌面端顶部导航栏 -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-8 py-3 max-w-6xl mx-auto rounded-full mt-4 mx-4 bg-white/70 backdrop-blur-xl shadow-sm text-sm font-medium">
+    <div class="text-2xl font-bold italic text-pink-500">我们的回忆</div>
+    
+    <!-- 桌面端菜单 (移动端隐藏) -->
+    <ul class="hidden md:flex gap-6 items-center">
+        <li><a class="text-pink-600 border-b-2 border-pink-200 pb-1" href="index.html">首页</a></li>
+        <li><a class="text-stone-500 hover:text-pink-400 transition-colors" href="map.html">旅行地图</a></li>
         <li><a class="text-stone-500 hover:text-pink-400 transition-colors" href="timeline.html">人生旅程</a></li>
         <li><a class="text-stone-500 hover:text-pink-400 transition-colors" href="#">照片画廊</a></li>
-        <li><a class="text-stone-500 hover:text-pink-400 transition-colors" href="#">关于我们</a></li>
     </ul>
-    <button class="text-pink-400 p-2 rounded-full hover:bg-stone-100 transition-colors">
+    
+    <!-- 爱心装饰按钮 -->
+    <button class="text-pink-400 p-2 rounded-full hover:bg-stone-100 transition-colors animate-pulse">
         <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
     </button>
 </nav>
 
-<div class="absolute inset-0 pointer-events-none z-0">
+<!-- 动态背景元素 (花瓣 + 爱心) -->
+<div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+    <!-- 飘落的花瓣 -->
     <div class="petal" style="left: 10%; animation-duration: 15s;"></div>
-    <div class="petal" style="left: 30%; animation-duration: 22s; animation-delay: 2s;"></div>
+    <div class="petal" style="left: 30%; animation-duration: 22s; animation-delay: 2s; background-color: #ffb6c1;"></div>
     <div class="petal" style="left: 50%; animation-duration: 18s; animation-delay: 5s;"></div>
-    <div class="petal" style="left: 70%; animation-duration: 25s; animation-delay: 1s;"></div>
+    <div class="petal" style="left: 70%; animation-duration: 25s; animation-delay: 1s; width: 18px; height: 18px; background-color: #ffc0cb;"></div>
     <div class="petal" style="left: 90%; animation-duration: 12s; animation-delay: 4s;"></div>
+    
+    <!-- 上升的灵动爱心 -->
+    <span class="material-symbols-outlined heart-float text-pink-400" style="left: 15%; animation-duration: 14s; font-size: 28px; font-variation-settings: 'FILL' 1;">favorite</span>
+    <span class="material-symbols-outlined heart-float text-pink-300" style="left: 35%; animation-duration: 18s; animation-delay: 3s; font-size: 42px; font-variation-settings: 'FILL' 1;">favorite</span>
+    <span class="material-symbols-outlined heart-float text-rose-300" style="left: 55%; animation-duration: 16s; animation-delay: 1s; font-size: 24px; font-variation-settings: 'FILL' 1;">favorite</span>
+    <span class="material-symbols-outlined heart-float text-pink-200" style="left: 75%; animation-duration: 22s; animation-delay: 6s; font-size: 36px; font-variation-settings: 'FILL' 1;">favorite</span>
+    <span class="material-symbols-outlined heart-float text-rose-400" style="left: 85%; animation-duration: 15s; animation-delay: 2s; font-size: 32px; font-variation-settings: 'FILL' 1;">favorite</span>
 </div>
 
-<main class="flex-grow flex flex-col items-center justify-center w-full z-10 px-4 relative mt-24 max-w-6xl mx-auto">
+<!-- 主内容区域 -->
+<main class="flex-grow flex flex-col items-center justify-center w-full z-10 px-4 relative mt-20 md:mt-24 max-w-6xl mx-auto mb-20 md:mb-0">
     
-    <div class="absolute inset-0 w-full h-full overflow-hidden z-[-1] rounded-[3rem] shadow-2xl">
+    <!-- 全屏轮播图背景 -->
+    <div class="absolute inset-0 w-full h-full overflow-hidden z-[-1] rounded-3xl md:rounded-[3rem] shadow-2xl">
         <div class="flex w-full h-full" id="carousel-inner">
             <img alt="郑州回忆" class="w-full h-full object-cover flex-shrink-0" src="images/zhengzhou/home_1.jpg" onerror="this.src='https://images.unsplash.com/photo-1518599904199-0ca897819ddb?q=80&w=1000&auto=format&fit=crop'">
             <img alt="徐州回忆" class="w-full h-full object-cover flex-shrink-0" src="images/xuzhou/xuzhou-2604-01.jpg" onerror="this.src='https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1000&auto=format&fit=crop'">
         </div>
-        <div class="absolute inset-0 bg-black/30"></div> 
+        <!-- 压暗遮罩，突出中央文字 -->
+        <div class="absolute inset-0 bg-black/20 md:bg-black/30"></div> 
     </div>
 
-    <div class="text-center flex flex-col items-center gap-6 max-w-2xl bg-white/70 backdrop-blur-md p-12 rounded-[3rem] shadow-xl border border-white/50 relative">
-        <p class="font-handwriting text-4xl text-primary -rotate-2 -mb-4 opacity-90">Since 2026</p>
-        <h1 class="font-headline text-5xl md:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-primary to-primary-container">
+    <!-- 中心毛玻璃卡片 (针对移动端优化 padding 和 字号) -->
+    <div class="text-center flex flex-col items-center gap-4 md:gap-6 w-[95%] max-w-2xl bg-white/70 backdrop-blur-md p-8 md:p-12 rounded-3xl md:rounded-[3rem] shadow-xl border border-white/50 relative">
+        <p class="font-handwriting text-3xl md:text-4xl text-primary -rotate-2 -mb-2 md:-mb-4 opacity-90">Since 2026</p>
+        
+        <h1 class="font-headline text-4xl md:text-6xl lg:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-primary to-pink-500 py-2">
             我们的专属回忆
         </h1>
-        <p class="font-body text-lg text-stone-700 max-w-md mx-auto leading-relaxed mt-2 font-medium">
-            每一张快照，每一张票根，每一个相伴的清晨。<br>这本纪念册，记录了成就我们的点点滴滴。
+        
+        <p class="font-body text-sm md:text-lg text-stone-700 max-w-md mx-auto leading-relaxed font-medium mt-1">
+            每一张快照，每一张票根，每一个相伴的清晨。<br class="hidden md:block">这本纪念册，记录了成就我们的点点滴滴。
         </p>
         
-        <button onclick="window.location.href='map.html'" class="mt-6 px-10 py-4 bg-primary text-white rounded-full font-bold text-lg shadow-lg hover:scale-105 transition-all duration-500 flex items-center gap-3 group relative overflow-hidden">
+        <button onclick="window.location.href='map.html'" class="mt-4 md:mt-6 px-8 md:px-10 py-3 md:py-4 bg-primary text-white rounded-full font-bold text-base md:text-lg shadow-lg hover:scale-105 transition-all duration-500 flex items-center gap-3 group relative overflow-hidden">
             <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
             <span>开启回忆</span>
-            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform text-xl">arrow_forward</span>
         </button>
     </div>
 
-    <div class="absolute inset-y-0 left-4 right-4 flex justify-between items-center pointer-events-none z-20">
-        <button id="prev-btn" class="pointer-events-auto p-3 bg-white/40 backdrop-blur-md rounded-full text-stone-800 hover:bg-white/70 transition-colors shadow-lg">
+    <!-- 轮播图左右控制按钮 -->
+    <div class="absolute inset-y-0 left-2 right-2 md:left-6 md:right-6 flex justify-between items-center pointer-events-none z-20">
+        <button id="prev-btn" class="pointer-events-auto p-2 md:p-3 bg-white/30 backdrop-blur-md rounded-full text-white hover:bg-white/70 hover:text-stone-800 transition-colors shadow-lg">
             <span class="material-symbols-outlined">chevron_left</span>
         </button>
-        <button id="next-btn" class="pointer-events-auto p-3 bg-white/40 backdrop-blur-md rounded-full text-stone-800 hover:bg-white/70 transition-colors shadow-lg">
+        <button id="next-btn" class="pointer-events-auto p-2 md:p-3 bg-white/30 backdrop-blur-md rounded-full text-white hover:bg-white/70 hover:text-stone-800 transition-colors shadow-lg">
             <span class="material-symbols-outlined">chevron_right</span>
         </button>
     </div>
 </main>
 
-<footer class="w-full py-12 px-6 flex flex-col items-center gap-6 bg-white/80 backdrop-blur-sm rounded-t-[3rem] mt-20 border-t border-white/20 z-10">
-    <div class="text-lg font-semibold text-stone-800">Our Journey</div>
+<!-- 桌面端页脚 (移动端隐藏，为底部胶囊导航让路) -->
+<footer class="hidden md:flex w-full py-12 px-6 flex-col items-center gap-6 bg-white/80 backdrop-blur-sm rounded-t-[3rem] mt-20 border-t border-white/20 z-10">
+    <div class="text-lg font-semibold text-stone-800">我们的回忆</div>
     <ul class="flex gap-6">
         <li><a class="text-sm italic text-stone-500 hover:text-pink-400" href="map.html">旅行地图</a></li>
-        <li><a class="text-sm italic text-stone-500 hover:text-pink-400" href="#">人生旅程</a></li>
+        <li><a class="text-sm italic text-stone-500 hover:text-pink-400" href="timeline.html">人生旅程</a></li>
         <li><a class="text-sm italic text-stone-500 hover:text-pink-400" href="#">照片画廊</a></li>
     </ul>
     <p class="font-handwriting text-2xl text-pink-500 text-center mt-2">
         每一个瞬间都是命运的馈赠。用心浇筑，以爱封存。
     </p>
 </footer>
+
+<!-- 移动端专属悬浮导航 (杀手锏功能) -->
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-full px-4 py-2 bg-[#f5f4ec]/80 backdrop-blur-2xl shadow-2xl flex justify-around items-center z-50 md:hidden border border-white">
+    <a href="index.html" class="flex flex-col items-center justify-center bg-primary text-white rounded-full w-12 h-12 scale-110 shadow-lg">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+        <span class="text-[9px] font-bold mt-1">首页</span>
+    </a>
+    <a href="map.html" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-white rounded-full transition-colors active:scale-90">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">explore</span>
+        <span class="text-[9px] font-bold mt-1">地图</span>
+    </a>
+    <a href="timeline.html" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-white rounded-full transition-colors active:scale-90">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">auto_stories</span>
+        <span class="text-[9px] font-bold mt-1">旅程</span>
+    </a>
+    <a href="#" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-white rounded-full transition-colors active:scale-90">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">photo_library</span>
+        <span class="text-[9px] font-bold mt-1">画廊</span>
+    </a>
+</nav>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
