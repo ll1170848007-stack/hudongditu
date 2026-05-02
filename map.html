@@ -2,128 +2,125 @@
 <html class="light" lang="zh-CN">
 <head>
     <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>我们的足迹 - 李雷与徐晓婉</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>我们的足迹 - 专属纪念</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Ma+Shan+Zheng&display=swap" rel="stylesheet" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-lite-webfont@1.1.0/style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
     <script id="tailwind-config">
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
-                    "colors": {
+                    colors: {
+                        primary: "#874e58",
                         "primary-container": "#ffb6c1",
-                        "secondary-container": "#fed9b8",
-                        "tertiary-container": "#a7d4b8",
-                        "on-surface": "#1b1c17",
-                        "on-surface-variant": "#514345",
+                        surface: "#fcfbf7",
                     },
-                    "fontFamily": {
-                        "headline": ["Plus Jakarta Sans", "sans-serif"],
-                        "body": ["Plus Jakarta Sans", "sans-serif"],
-                        "label": ["Plus Jakarta Sans", "sans-serif"],
-                        "handwriting": ["Ma Shan Zheng", "cursive"]
-                    },
-                    "animation": {
-                        "float-subtle": "float 6s ease-in-out infinite",
-                        "fade-in-up": "fadeInUp 0.6s ease-out forwards",
-                    },
-                    "keyframes": {
-                        "float": {
-                            "0%, 100%": { transform: "translateY(0)" },
-                            "50%": { transform: "translateY(-5px)" }
-                        },
-                        "fadeInUp": {
-                            "0%": { opacity: "0", transform: "translateY(15px)" },
-                            "100%": { opacity: "1", transform: "translateY(0)" }
-                        }
+                    fontFamily: {
+                        headline: ["Quicksand", "LXGW WenKai Lite", "sans-serif"],
+                        body: ["Quicksand", "LXGW WenKai Lite", "sans-serif"],
                     }
                 }
             }
         }
     </script>
+    
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-image: radial-gradient(#d6c2c3 1px, transparent 1px); background-size: 40px 40px; background-color: #fbf9f1; }
-        .material-symbols-outlined { font-family: 'Material Symbols Outlined'; }
-        
-        .soft-shadow { box-shadow: 0 20px 40px -10px rgba(255, 182, 193, 0.15), 0 10px 20px -5px rgba(135, 78, 88, 0.05); }
-        
-        /* 保证 ECharts 容器饱满 */
-        #map-container { width: 100%; height: 100%; min-height: 550px; z-index: 10; }
-        
-        /* ECharts 返回按钮的 Tailwind 化定制 */
-        #back-btn {
-            position: absolute; top: 20px; left: 20px; z-index: 999; display: none;
+        body {
+            font-family: "Quicksand", "LXGW WenKai Lite", sans-serif;
+            background-color: #fcfbf7;
+            overflow: hidden; /* 地图页通常固定高度 */
         }
+
+        .bg-gradient-soft {
+            background: radial-gradient(circle at top right, #fff4e6 0%, #fcfbf7 40%),
+                        radial-gradient(circle at bottom left, #fce7f3 0%, #fcfbf7 40%);
+        }
+
+        /* 动画逻辑同步首页 */
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(0.6) rotate(-15deg); opacity: 0; }
+            20% { opacity: 0.8; }
+            80% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) scale(1.4) rotate(25deg); opacity: 0; }
+        }
+        .anim-heart { position: absolute; animation: floatUp linear infinite; z-index: 100; pointer-events: none; }
+        
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            15% { opacity: 0.6; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+        .anim-petal { position: absolute; top: -10%; border-radius: 15px 0 15px 0; animation: fall linear infinite; z-index: 100; pointer-events: none; }
+
+        /* 地图容器样式 */
+        #map-container { width: 100%; height: 100%; min-height: 500px; }
+        
+        /* 隐藏 ECharts 默认的高亮蓝边 */
+        canvas { border-radius: 2rem; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #ffb6c1; border-radius: 10px; }
     </style>
 </head>
-<body class="text-on-surface antialiased pt-24 min-h-screen flex flex-col">
+<body class="bg-gradient-soft min-h-screen relative flex flex-col antialiased">
 
-<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-3 max-w-6xl mx-auto rounded-full mt-4 mx-4 bg-white/80 backdrop-blur-xl shadow-[0_32px_64px_-15px_rgba(255,182,193,0.2)]">
-    <div class="text-2xl font-bold italic text-pink-400 drop-shadow-sm">Our Journey</div>
-    <div class="hidden md:flex gap-6 font-plus-jakarta text-sm tracking-wide font-medium">
-        <a class="text-pink-500 border-b-2 border-pink-300 pb-1 hover:text-pink-400 transition-all" href="index.html">首页</a>
-        <a class="text-stone-500 hover:text-pink-400 transition-colors" href="#">人生旅程</a>
+<div class="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+    <div class="anim-petal bg-pink-200 w-3 h-3" style="left: 20%; animation-duration: 15s;"></div>
+    <div class="anim-petal bg-rose-300 w-4 h-4" style="left: 60%; animation-duration: 20s; animation-delay: 3s;"></div>
+    <span class="material-symbols-outlined anim-heart text-pink-400 text-2xl" style="left: 15%; animation-duration: 14s; font-variation-settings: 'FILL' 1;">favorite</span>
+    <span class="material-symbols-outlined anim-heart text-pink-200 text-4xl" style="left: 75%; animation-duration: 22s; animation-delay: 5s; font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
 
-<a class="text-stone-500 hover:text-pink-400 transition-colors" href="timeline.html">人生旅程</a>
-        <a class="text-pink-500 border-b-2 border-pink-300 pb-1" href="map.html">旅行地图</a>
-        <a class="text-stone-500 hover:text-pink-400 transition-colors" href="#">照片画廊</a>
-    </div>
-    <button class="text-pink-400 hover:text-pink-600 transition-colors animate-pulse">
-        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
-    </button>
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-12 py-4 max-w-7xl mx-auto bg-surface/80 backdrop-blur-md">
+    <div class="text-2xl font-bold text-pink-500 tracking-wider">我们的回忆</div>
+    <ul class="hidden md:flex gap-8 items-center absolute left-1/2 transform -translate-x-1/2 font-medium text-stone-500 text-[15px]">
+        <li><a class="hover:text-pink-400 transition-colors" href="index.html">首页</a></li>
+        <li><a class="text-pink-600 font-bold" href="map.html">旅行地图</a></li>
+        <li><a class="hover:text-pink-400 transition-colors" href="timeline.html">人生旅程</a></li>
+        <li><a class="hover:text-pink-400 transition-colors" href="#">关于我们</a></li>
+    </ul>
+    <button class="text-pink-400 animate-pulse"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span></button>
 </nav>
 
-<main class="flex-grow w-full max-w-7xl mx-auto px-6 lg:px-12 pb-24 grid grid-cols-1 lg:grid-cols-12 gap-12 mt-4">
+<main class="flex-grow w-full max-w-7xl mx-auto px-4 md:px-8 pt-24 pb-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-2rem)]">
     
-    <section class="lg:col-span-8 flex flex-col gap-8">
-        <div class="flex flex-col gap-2">
-            <h1 class="text-4xl md:text-5xl font-headline font-bold text-stone-800 tracking-tight">我们的足迹</h1>
-            <p class="text-lg font-body text-stone-500 max-w-2xl">每一次出发，每一座城市，都因为彼此的陪伴而闪闪发光。点击地图上高亮的省份与城市，查收我们的专属记忆。</p>
-        </div>
-
-        <div class="bg-white/70 backdrop-blur-md rounded-3xl p-4 md:p-8 soft-shadow relative overflow-hidden group flex items-center justify-center border border-white/50" style="min-height: 600px;">
-            <div class="absolute -top-12 -left-12 w-64 h-64 bg-primary-container/40 rounded-full blur-3xl animate-float-subtle"></div>
-            <div class="absolute bottom-10 right-10 w-80 h-80 bg-tertiary-container/30 rounded-full blur-3xl animate-float-subtle" style="animation-delay: 2s;"></div>
-            
-            <button id="back-btn" class="bg-gradient-to-r from-pink-400 to-rose-400 text-white px-5 py-2 rounded-full font-medium text-sm shadow-lg shadow-pink-200 flex items-center gap-1 hover:scale-105 transition-transform">
+    <section class="lg:col-span-8 flex flex-col gap-4 h-full">
+        <div class="bg-white/60 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 p-4 md:p-6 shadow-[0_20px_50px_rgba(135,78,88,0.1)] relative flex-grow overflow-hidden">
+            <button id="back-btn" class="absolute top-6 left-6 z-[101] hidden bg-white/80 hover:bg-pink-500 hover:text-white px-5 py-2 rounded-full font-bold text-sm shadow-sm transition-all flex items-center gap-2 text-stone-700">
                 <span class="material-symbols-outlined text-sm">arrow_back</span> 返回全国
             </button>
             
             <div id="map-container"></div>
         </div>
-
-        <div class="flex flex-wrap gap-4 mt-2">
-            <div class="bg-secondary-container/60 backdrop-blur-sm px-6 py-3 rounded-2xl text-stone-700 font-label text-sm flex items-center gap-2 border border-secondary-container">
-                <span class="material-symbols-outlined text-lg text-orange-500" style="font-variation-settings: 'FILL' 1;">explore</span>
-                <span class="font-bold" id="stat-provinces">0 个省份</span>
-            </div>
-            <div class="bg-tertiary-container/60 backdrop-blur-sm px-6 py-3 rounded-2xl text-stone-700 font-label text-sm flex items-center gap-2 border border-tertiary-container">
-                <span class="material-symbols-outlined text-lg text-green-600" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
-                <span class="font-bold" id="stat-memories">0 条回忆</span>
-            </div>
-        </div>
     </section>
 
-    <aside class="lg:col-span-4 flex flex-col gap-6 pt-2">
-        <div class="flex items-center justify-between mb-2">
-            <h2 id="sidebar-title" class="text-2xl font-headline font-bold text-stone-800">全部回忆</h2>
+    <aside class="lg:col-span-4 flex flex-col gap-4 h-full overflow-hidden">
+        <div class="bg-white/70 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 p-6 shadow-xl flex flex-col h-full">
+            <h2 id="sidebar-title" class="text-2xl font-bold text-stone-800 mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-pink-400">auto_awesome</span>
+                <span>最近的回忆</span>
+            </h2>
+            
+            <div id="sidebar-content" class="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-6">
+                </div>
         </div>
-        
-        <div id="sidebar-content" class="flex flex-col gap-6 relative before:absolute before:inset-y-0 before:left-4 before:w-[2px] before:bg-gradient-to-b before:from-pink-200 before:via-green-200 before:to-orange-200 before:opacity-60 overflow-y-auto" style="max-height: 700px; padding-right: 10px;">
-            </div>
     </aside>
 </main>
 
-<footer class="w-full py-12 px-6 flex flex-col items-center gap-6 bg-white/60 backdrop-blur-md rounded-t-[3rem] mt-10 border-t border-white/60 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.03)]">
-    <div class="text-xl font-bold text-stone-700 tracking-wide">Our Journey</div>
-    <p class="text-pink-500 font-handwriting text-2xl opacity-90">每一个瞬间都是命运的馈赠。用心浇筑，以爱封存。</p>
-</footer>
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-full px-4 py-2 bg-white/95 backdrop-blur-2xl shadow-lg flex justify-around items-center z-50 md:hidden border border-stone-100">
+    <a href="index.html" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full"><span class="material-symbols-outlined">home</span><span class="text-[10px] mt-1">首页</span></a>
+    <a href="map.html" class="flex flex-col items-center justify-center bg-[#8a5a63] text-white rounded-full w-12 h-12 scale-110 shadow-md"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span><span class="text-[10px] mt-1">地图</span></a>
+    <a href="timeline.html" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full"><span class="material-symbols-outlined">auto_stories</span><span class="text-[10px] mt-1">旅程</span></a>
+    <a href="#" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full"><span class="material-symbols-outlined">photo_library</span><span class="text-[10px] mt-1">画廊</span></a>
+</nav>
 
 <script>
-    // --- 1. 全局数据配置 ---
+    // 数据配置保持不变
     const globalTravelData = [
         {
             province: "河南",
@@ -131,20 +128,7 @@
                 {
                     cityName: "郑州",
                     spots: [
-                        {
-                            location: "世贸大厦B座附近",
-                            date: "2026-02",
-                            story: "在这里安顿了下来，通勤也很方便。这片区域见证了我们很多平淡又温馨的日常。",
-                            photos: ["images/zhengzhou/home_1.jpg", "images/zhengzhou/home_2.jpg"],
-                            color: "pink" // 用于时间轴点点的颜色
-                        },
-                        {
-                            location: "中牟往返",
-                            date: "2026-03",
-                            story: "周末往返的时光，虽然在路上奔波，但一路上的风景和彼此的陪伴都很值得记录。",
-                            photos: ["images/zhengzhou/zhongmu_1.jpg"],
-                            color: "orange"
-                        }
+                        { location: "世贸大厦B座附近", date: "2026-02", story: "在这里安顿了下来，通勤也很方便。这片区域见证了我们很多平淡又温馨的日常。", photos: ["images/zhengzhou/home_1.jpg"] }
                     ]
                 }
             ]
@@ -155,122 +139,20 @@
                 {
                     cityName: "徐州",
                     spots: [
-                        {
-                            location: "苏宁广场与周边打卡",
-                            date: "2026-04",
-                            story: "在这里一起打卡了超多美食，这座城市留下了我们很棒的味蕾回忆。不管是烧烤还是高铁沿途，都很珍贵。",
-                            photos: [
-                                "images/xuzhou/xuzhou-2604-01.jpg", "images/xuzhou/xuzhou-2604-02.jpg",
-                                "images/xuzhou/xuzhou-2604-03.jpg", "images/xuzhou/xuzhou-2604-04.jpg",
-                                "images/xuzhou/xuzhou-2604-05.jpg", "images/xuzhou/xuzhou-2604-06.jpg",
-                                "images/xuzhou/xuzhou-2604-07.jpg", "images/xuzhou/xuzhou-2604-08.jpg"
-                            ],
-                            color: "green"
-                        }
+                        { location: "苏宁广场与周边打卡", date: "2026-04", story: "在这里打卡了超多美食，这座城市留下了很棒的味蕾回忆。无论是烧烤还是高铁风景，都很珍贵。", photos: ["images/xuzhou/xuzhou-2604-01.jpg"] }
                     ]
                 }
             ]
         }
     ];
 
-    // --- 2. 初始化与统计 ---
-    // 计算并渲染左侧统计数据
-    document.getElementById('stat-provinces').innerText = `${globalTravelData.length} 个省份`;
-    let totalSpots = 0;
-    globalTravelData.forEach(p => p.cities.forEach(c => totalSpots += c.spots.length));
-    document.getElementById('stat-memories').innerText = `${totalSpots} 条回忆`;
-
-    // --- 3. 右侧时间轴动态渲染逻辑 ---
-    const sidebarTitle = document.getElementById('sidebar-title');
-    const sidebarContent = document.getElementById('sidebar-content');
-
-    // 颜色字典，适配 Tailwind 的颜色类
-    const colorMap = {
-        'pink': { dot: 'bg-pink-400', shadow: 'shadow-[0_0_15px_rgba(244,114,182,0.6)]', text: 'text-pink-600', tagBg: 'bg-pink-50' },
-        'green': { dot: 'bg-green-400', shadow: 'shadow-[0_0_15px_rgba(74,222,128,0.6)]', text: 'text-green-700', tagBg: 'bg-green-50' },
-        'orange': { dot: 'bg-orange-400', shadow: 'shadow-[0_0_15px_rgba(251,146,60,0.6)]', text: 'text-orange-700', tagBg: 'bg-orange-50' }
-    };
-
-    function renderSidebar(title, spots) {
-        sidebarTitle.innerText = title;
-        sidebarContent.innerHTML = '';
-
-        if (!spots || spots.length === 0) {
-            sidebarContent.innerHTML = `
-                <div class="text-center mt-10 p-6 bg-white/50 rounded-2xl border border-dashed border-stone-300">
-                    <span class="material-symbols-outlined text-4xl text-stone-300 mb-2">flight_takeoff</span>
-                    <p class="text-stone-500 font-medium">我们还没在这里写下故事哦~</p>
-                </div>`;
-            return;
-        }
-
-        let htmlStr = '';
-        spots.forEach((spot, index) => {
-            const uniqueId = `spot_${Date.now()}_${index}`;
-            const photosStr = spot.photos.join(',');
-            const theme = colorMap[spot.color || 'pink'];
-            
-            // 使用你的新版 Stitch HTML 结构生成卡片
-            htmlStr += `
-            <div class="relative pl-12 group animate-fade-in-up" style="animation-delay: ${index * 0.1}s">
-                <div class="absolute left-[11px] top-6 w-[10px] h-[10px] ${theme.dot} rounded-full ${theme.shadow} group-hover:scale-150 transition-all duration-300 ring-4 ring-[#fbf9f1]"></div>
-                
-                <div class="bg-white p-5 rounded-2xl soft-shadow hover:-translate-y-1 hover:shadow-xl transition-all duration-300 border border-white">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="font-headline font-bold text-stone-800 text-lg leading-tight">${spot.location}</h3>
-                        <span class="text-xs font-label ${theme.text} ${theme.tagBg} px-2 py-1 rounded-md font-bold whitespace-nowrap">${spot.date}</span>
-                    </div>
-                    <p class="text-sm font-body text-stone-500 leading-relaxed mb-4">${spot.story}</p>
-                    
-                    <div id="lock-${uniqueId}" class="bg-stone-50 p-4 rounded-xl border border-stone-100 flex flex-col gap-3">
-                        <div class="flex items-center gap-1 text-pink-500 text-xs font-bold">
-                            <span class="material-symbols-outlined text-sm">lock</span>
-                            输入相识年份解锁回忆
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="password" id="pwd-${uniqueId}" class="flex-1 px-3 py-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 transition-all" placeholder="密码是...">
-                            <button onclick="unlockPhotos('${uniqueId}', '${photosStr}')" class="bg-stone-800 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-pink-500 transition-colors">解锁</button>
-                        </div>
-                    </div>
-                    
-                    <div id="photos-${uniqueId}" class="hidden mt-4 grid gap-3"></div>
-                </div>
-            </div>`;
-        });
-        sidebarContent.innerHTML = htmlStr;
-    }
-
-    // 提取所有地点用于首页默认展示
-    const allSpots = [];
-    globalTravelData.forEach(p => p.cities.forEach(c => allSpots.push(...c.spots)));
-    renderSidebar("最近的回忆", allSpots); // 初始加载展示所有
-
-    // 密码解锁功能
-    window.unlockPhotos = function(id, photosStr) {
-        const pwdInput = document.getElementById(`pwd-${id}`).value;
-        if (pwdInput === '2026') {
-            document.getElementById(`lock-${id}`).style.display = 'none';
-            const photoArea = document.getElementById(`photos-${id}`);
-            photoArea.classList.remove('hidden');
-            
-            if (photosStr) {
-                const urls = photosStr.split(',');
-                // 对图片展示也应用了一些美化和间距
-                let imgHtml = urls.map(url => `<img src="${url}" class="w-full h-auto object-cover rounded-xl shadow-sm border border-stone-100" alt="回忆照片" onerror="this.style.display='none'">`).join('');
-                photoArea.innerHTML = imgHtml;
-            }
-        } else {
-            alert('密码不对哦，再想一下！');
-        }
-    };
-
-
-    // --- 4. ECharts 地图核心逻辑 ---
     const myChart = echarts.init(document.getElementById('map-container'));
     const backBtn = document.getElementById('back-btn');
-    let currentLevel = 'china'; 
+    const sidebarContent = document.getElementById('sidebar-content');
+    const sidebarTitle = document.getElementById('sidebar-title');
+    let currentLevel = 'china';
 
-    async function renderEChartsMap(mapName, mapKey) {
+    async function renderMap(mapName, mapKey) {
         try {
             let url = mapKey === 'china' 
                 ? `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/china.json` 
@@ -283,82 +165,69 @@
                 tooltip: { 
                     trigger: 'item', 
                     formatter: '{b}',
-                    backgroundColor: 'rgba(255,255,255,0.9)',
-                    borderColor: '#fbcfe8',
-                    textStyle: { color: '#831843', fontWeight: 'bold' }
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderColor: '#ffb6c1',
+                    textStyle: { color: '#874e58', fontWeight: 'bold', fontFamily: 'LXGW WenKai Lite' }
                 },
                 series: [{
-                    type: 'map', 
-                    map: mapName, 
-                    roam: true, 
-                    scaleLimit: { min: 1, max: 6 },
-                    // 与新 UI 契合的地图柔和色彩
-                    itemStyle: { areaColor: '#f5f5f4', borderColor: '#ffffff', borderWidth: 1.5 },
-                    emphasis: { itemStyle: { areaColor: '#fbcfe8' }, label: { color: '#831843' } },
-                    select: { itemStyle: { areaColor: '#f9a8d4' } }
+                    type: 'map', map: mapName, roam: true, scaleLimit: { min: 1, max: 6 },
+                    itemStyle: { 
+                        areaColor: '#fff9f9', 
+                        borderColor: '#ffccd5', 
+                        borderWidth: 2, // 增加边框感
+                        shadowColor: 'rgba(135, 78, 88, 0.05)',
+                        shadowBlur: 10
+                    },
+                    emphasis: { 
+                        itemStyle: { areaColor: '#ffedf0', borderWidth: 3 },
+                        label: { show: true, color: '#874e58', fontWeight: 'bold' }
+                    },
+                    data: globalTravelData.map(d => ({ name: d.province, itemStyle: { areaColor: '#ffccd5' } }))
                 }]
             };
-
-            // 预处理高亮数据：让去过的省份在全国地图上呈现橘粉色
-            if (mapKey === 'china') {
-                const visitedProvinces = globalTravelData.map(d => ({ name: d.province, itemStyle: { areaColor: '#fed7aa' } }));
-                option.series[0].data = visitedProvinces;
-            }
-
             myChart.setOption(option);
-        } catch (error) {
-            console.error("地图数据加载失败:", error);
-        }
+        } catch (e) { console.error(e); }
     }
 
-    renderEChartsMap('china', 'china');
+    function renderSidebar(spots, title = "最近的回忆") {
+        sidebarTitle.innerHTML = `<span class="material-symbols-outlined text-pink-400">auto_awesome</span><span>${title}</span>`;
+        sidebarContent.innerHTML = spots.length ? spots.map((s, i) => `
+            <div class="bg-white/50 p-4 rounded-3xl border border-pink-100 shadow-sm hover:scale-[1.02] transition-transform animate-in fade-in slide-in-from-right duration-500" style="animation-delay: ${i*100}ms">
+                <img src="${s.photos[0]}" class="w-full h-32 object-cover rounded-2xl mb-3 shadow-inner" onerror="this.src='https://picsum.photos/400/200?random=${i}'">
+                <h4 class="font-bold text-stone-800 text-lg mb-1">📍 ${s.location}</h4>
+                <p class="text-xs text-pink-500 font-bold mb-2 underline decoration-pink-200 underline-offset-4">${s.date}</p>
+                <p class="text-sm text-stone-600 leading-relaxed">${s.story}</p>
+            </div>
+        `).join('') : `<div class="text-center py-20 text-stone-400">点击地图城市查看回忆~</div>`;
+    }
 
-    // 地图点击事件响应
+    renderMap('china', 'china');
+    // 初始加载所有回忆
+    const allSpots = []; globalTravelData.forEach(p => p.cities.forEach(c => allSpots.push(...c.spots)));
+    renderSidebar(allSpots);
+
     myChart.on('click', function (params) {
         if (currentLevel === 'china') {
-            const provinceName = params.name;
-            const provincePinyinMap = { '河南': 'henan', '江苏': 'jiangsu', '海南': 'hainan', '浙江': 'zhejiang' };
-            const targetPinyin = provincePinyinMap[provinceName];
-            
-            if (targetPinyin) {
+            const provincePinyinMap = { '河南': 'henan', '江苏': 'jiangsu' };
+            if (provincePinyinMap[params.name]) {
                 currentLevel = 'province';
-                renderEChartsMap(provinceName, targetPinyin);
+                renderMap(params.name, provincePinyinMap[params.name]);
                 backBtn.style.display = 'flex';
-                // 暂时展示该省份提示，用户需点击具体城市
-                renderSidebar(`${provinceName}省 的足迹`, []); 
-            } else {
-                alert(`暂时还没有去过 ${provinceName} 哦！`);
             }
-        } else if (currentLevel === 'province') {
-            const cityName = params.name.replace(/(市|县|区)$/, ''); 
-            
-            let foundCitySpots = [];
-            for (let province of globalTravelData) {
-                if (province.cities) {
-                    for (let city of province.cities) {
-                        if (city.cityName === cityName) {
-                            foundCitySpots = city.spots;
-                            break;
-                        }
-                    }
-                }
-                if (foundCitySpots.length > 0) break;
-            }
-            // 响应点击：渲染该城市的日记！
-            renderSidebar(`${cityName} 的专属回忆`, foundCitySpots);
+        } else {
+            const cityName = params.name.replace(/(市|县|区)$/, '');
+            let spots = [];
+            globalTravelData.forEach(p => p.cities.forEach(c => { if(c.cityName === cityName) spots = c.spots }));
+            renderSidebar(spots, `${cityName} 的回忆`);
         }
     });
 
-    backBtn.addEventListener('click', () => {
-        currentLevel = 'china';
-        renderEChartsMap('china', 'china');
-        backBtn.style.display = 'none';
-        // 恢复展示全部回忆
-        renderSidebar("最近的回忆", allSpots);
-        myChart.resize();
-    });
+    backBtn.onclick = () => {
+        currentLevel = 'china'; renderMap('china', 'china');
+        backBtn.style.display = 'none'; renderSidebar(allSpots);
+    };
 
-    window.addEventListener('resize', () => { myChart.resize(); });
+    window.onresize = () => myChart.resize();
 </script>
 </body>
 </html>
