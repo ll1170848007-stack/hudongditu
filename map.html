@@ -193,3 +193,23 @@
             const provincePinyinMap = { '河南': 'henan', '江苏': 'jiangsu' };
             if (provincePinyinMap[params.name]) {
                 currentLevel = 'province';
+                renderMap(params.name, provincePinyinMap[params.name]);
+                backBtn.style.display = 'flex';
+            }
+        } else {
+            const cityName = params.name.replace(/(市|县|区)$/, '');
+            let spots = [];
+            globalTravelData.forEach(p => p.cities.forEach(c => { if(c.cityName === cityName) spots = c.spots }));
+            renderSidebar(spots, `${cityName} 的回忆`);
+        }
+    });
+
+    backBtn.onclick = () => {
+        currentLevel = 'china'; renderMap('china', 'china');
+        backBtn.style.display = 'none'; renderSidebar(allSpots);
+    };
+
+    window.onresize = () => myChart.resize();
+</script>
+</body>
+</html>
