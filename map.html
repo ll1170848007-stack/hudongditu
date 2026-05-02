@@ -15,112 +15,77 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: "#874e58",
-                        "primary-container": "#ffb6c1",
-                        surface: "#fcfbf7",
-                    },
-                    fontFamily: {
-                        headline: ["Quicksand", "LXGW WenKai Lite", "sans-serif"],
-                        body: ["Quicksand", "LXGW WenKai Lite", "sans-serif"],
-                    }
+                    colors: { primary: "#874e58", surface: "#fcfbf7" },
+                    fontFamily: { body: ["Quicksand", "LXGW WenKai Lite", "sans-serif"] }
                 }
             }
         }
     </script>
     
     <style>
-        body {
-            font-family: "Quicksand", "LXGW WenKai Lite", sans-serif;
-            background-color: #fcfbf7;
-            overflow: hidden; /* 地图页通常固定高度 */
-        }
-
+        body { font-family: "Quicksand", "LXGW WenKai Lite", sans-serif; background-color: #fcfbf7; overflow: hidden; }
         .bg-gradient-soft {
-            background: radial-gradient(circle at top right, #fff4e6 0%, #fcfbf7 40%),
-                        radial-gradient(circle at bottom left, #fce7f3 0%, #fcfbf7 40%);
+            background: radial-gradient(circle at top right, #fff4e6 0%, #fcfbf7 45%),
+                        radial-gradient(circle at bottom left, #f3f1ed 0%, #fcfbf7 45%);
         }
 
-        /* 动画逻辑同步首页 */
+        /* 顶部动态爱心与花瓣 */
         @keyframes floatUp {
             0% { transform: translateY(110vh) scale(0.6) rotate(-15deg); opacity: 0; }
             20% { opacity: 0.8; }
-            80% { opacity: 0.5; }
             100% { transform: translateY(-10vh) scale(1.4) rotate(25deg); opacity: 0; }
         }
         .anim-heart { position: absolute; animation: floatUp linear infinite; z-index: 100; pointer-events: none; }
         
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
-            15% { opacity: 0.6; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-        }
-        .anim-petal { position: absolute; top: -10%; border-radius: 15px 0 15px 0; animation: fall linear infinite; z-index: 100; pointer-events: none; }
-
-        /* 地图容器样式 */
         #map-container { width: 100%; height: 100%; min-height: 500px; }
-        
-        /* 隐藏 ECharts 默认的高亮蓝边 */
-        canvas { border-radius: 2rem; }
-
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #ffb6c1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+        
+        /* 侧边卡片滑入动画 */
+        .card-entry { animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body class="bg-gradient-soft min-h-screen relative flex flex-col antialiased">
 
 <div class="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
-    <div class="anim-petal bg-pink-200 w-3 h-3" style="left: 20%; animation-duration: 15s;"></div>
-    <div class="anim-petal bg-rose-300 w-4 h-4" style="left: 60%; animation-duration: 20s; animation-delay: 3s;"></div>
-    <span class="material-symbols-outlined anim-heart text-pink-400 text-2xl" style="left: 15%; animation-duration: 14s; font-variation-settings: 'FILL' 1;">favorite</span>
-    <span class="material-symbols-outlined anim-heart text-pink-200 text-4xl" style="left: 75%; animation-duration: 22s; animation-delay: 5s; font-variation-settings: 'FILL' 1;">favorite</span>
+    <span class="material-symbols-outlined anim-heart text-pink-300 text-2xl" style="left: 15%; animation-duration: 16s; font-variation-settings: 'FILL' 1;">favorite</span>
+    <span class="material-symbols-outlined anim-heart text-stone-300 text-4xl" style="left: 80%; animation-duration: 20s; animation-delay: 4s; font-variation-settings: 'FILL' 1;">favorite</span>
 </div>
 
-<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-12 py-4 max-w-7xl mx-auto bg-surface/80 backdrop-blur-md">
-    <div class="text-2xl font-bold text-pink-500 tracking-wider">我们的回忆</div>
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-12 py-4 max-w-7xl mx-auto bg-white/80 backdrop-blur-md">
+    <div class="text-2xl font-bold text-stone-800 tracking-wider">我们的回忆</div>
     <ul class="hidden md:flex gap-8 items-center absolute left-1/2 transform -translate-x-1/2 font-medium text-stone-500 text-[15px]">
-        <li><a class="hover:text-pink-400 transition-colors" href="index.html">首页</a></li>
-        <li><a class="text-pink-600 font-bold" href="map.html">旅行地图</a></li>
-        <li><a class="hover:text-pink-400 transition-colors" href="timeline.html">人生旅程</a></li>
-        <li><a class="hover:text-pink-400 transition-colors" href="#">关于我们</a></li>
+        <li><a class="hover:text-pink-500 transition-colors" href="index.html">首页</a></li>
+        <li><a class="text-pink-600 font-bold border-b-2 border-pink-300 pb-1" href="map.html">旅行地图</a></li>
+        <li><a class="hover:text-pink-500 transition-colors" href="timeline.html">人生旅程</a></li>
+        <li><a class="hover:text-pink-500 transition-colors" href="#">照片画廊</a></li>
     </ul>
-    <button class="text-pink-400 animate-pulse"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span></button>
+    <button class="text-pink-400 opacity-60"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span></button>
 </nav>
 
 <main class="flex-grow w-full max-w-7xl mx-auto px-4 md:px-8 pt-24 pb-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-2rem)]">
-    
     <section class="lg:col-span-8 flex flex-col gap-4 h-full">
-        <div class="bg-white/60 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 p-4 md:p-6 shadow-[0_20px_50px_rgba(135,78,88,0.1)] relative flex-grow overflow-hidden">
-            <button id="back-btn" class="absolute top-6 left-6 z-[101] hidden bg-white/80 hover:bg-pink-500 hover:text-white px-5 py-2 rounded-full font-bold text-sm shadow-sm transition-all flex items-center gap-2 text-stone-700">
+        <div class="bg-white/40 backdrop-blur-xl rounded-[2.5rem] border border-white/60 p-4 shadow-[0_15px_40px_rgba(0,0,0,0.04)] relative flex-grow overflow-hidden">
+            <button id="back-btn" class="absolute top-6 left-6 z-[101] hidden bg-stone-800 text-white px-5 py-2 rounded-full font-bold text-xs shadow-lg transition-all flex items-center gap-2">
                 <span class="material-symbols-outlined text-sm">arrow_back</span> 返回全国
             </button>
-            
             <div id="map-container"></div>
         </div>
     </section>
 
     <aside class="lg:col-span-4 flex flex-col gap-4 h-full overflow-hidden">
-        <div class="bg-white/70 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 p-6 shadow-xl flex flex-col h-full">
+        <div class="bg-white/80 backdrop-blur-2xl rounded-[2.5rem] border border-white p-6 shadow-2xl flex flex-col h-full">
             <h2 id="sidebar-title" class="text-2xl font-bold text-stone-800 mb-6 flex items-center gap-2">
-                <span class="material-symbols-outlined text-pink-400">auto_awesome</span>
-                <span>最近的回忆</span>
+                <span class="material-symbols-outlined text-stone-400">explore</span>
+                <span>足迹清单</span>
             </h2>
-            
-            <div id="sidebar-content" class="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-6">
-                </div>
+            <div id="sidebar-content" class="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-5"></div>
         </div>
     </aside>
 </main>
 
-<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-full px-4 py-2 bg-white/95 backdrop-blur-2xl shadow-lg flex justify-around items-center z-50 md:hidden border border-stone-100">
-    <a href="index.html" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full"><span class="material-symbols-outlined">home</span><span class="text-[10px] mt-1">首页</span></a>
-    <a href="map.html" class="flex flex-col items-center justify-center bg-[#8a5a63] text-white rounded-full w-12 h-12 scale-110 shadow-md"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span><span class="text-[10px] mt-1">地图</span></a>
-    <a href="timeline.html" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full"><span class="material-symbols-outlined">auto_stories</span><span class="text-[10px] mt-1">旅程</span></a>
-    <a href="#" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full"><span class="material-symbols-outlined">photo_library</span><span class="text-[10px] mt-1">画廊</span></a>
-</nav>
-
 <script>
-    // 数据配置保持不变
     const globalTravelData = [
         {
             province: "河南",
@@ -139,7 +104,8 @@
                 {
                     cityName: "徐州",
                     spots: [
-                        { location: "苏宁广场与周边打卡", date: "2026-04", story: "在这里打卡了超多美食，这座城市留下了很棒的味蕾回忆。无论是烧烤还是高铁风景，都很珍贵。", photos: ["images/xuzhou/xuzhou-2604-01.jpg"] }
+                        { location: "苏宁广场与周边打卡", date: "2026-04", story: "这里的美食留下了很棒的味蕾回忆。无论是烧烤还是高铁风景，都很珍贵。", photos: ["images/xuzhou/xuzhou-2604-01.jpg"] },
+                        { location: "云龙湖漫步", date: "2026-04", story: "夕阳下的湖面非常美。", photos: ["images/xuzhou/xuzhou-2604-02.jpg"] }
                     ]
                 }
             ]
@@ -152,6 +118,13 @@
     const sidebarTitle = document.getElementById('sidebar-title');
     let currentLevel = 'china';
 
+    // 梯度算法：计算省份权重
+    const provinceWeight = globalTravelData.map(d => {
+        let spotCount = 0;
+        d.cities.forEach(c => spotCount += c.spots.length);
+        return { name: d.province, value: spotCount };
+    });
+
     async function renderMap(mapName, mapKey) {
         try {
             let url = mapKey === 'china' 
@@ -162,47 +135,56 @@
             echarts.registerMap(mapName, geoJson);
 
             const option = {
+                // 核心：增加 visualMap 视觉映射（梯度填充）
+                visualMap: {
+                    min: 0,
+                    max: 5,
+                    show: false,
+                    inRange: {
+                        color: ['#f8f5f2', '#ffebec', '#ffccd5', '#874e58'] // 从背景色到深玫瑰色的梯度
+                    }
+                },
                 tooltip: { 
                     trigger: 'item', 
-                    formatter: '{b}',
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    borderColor: '#ffb6c1',
-                    textStyle: { color: '#874e58', fontWeight: 'bold', fontFamily: 'LXGW WenKai Lite' }
+                    formatter: (params) => {
+                        const weight = provinceWeight.find(p => p.name === params.name);
+                        return `<div style="font-weight:bold">${params.name}</div>${weight ? '已留下 ' + weight.value + ' 个足迹' : '尚未探索'}`;
+                    },
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: '#eee',
+                    textStyle: { color: '#333', fontFamily: 'LXGW WenKai Lite' }
                 },
                 series: [{
                     type: 'map', map: mapName, roam: true, scaleLimit: { min: 1, max: 6 },
                     itemStyle: { 
-                        areaColor: '#fff9f9', 
-                        borderColor: '#ffccd5', 
-                        borderWidth: 2, // 增加边框感
-                        shadowColor: 'rgba(135, 78, 88, 0.05)',
-                        shadowBlur: 10
+                        areaColor: '#f8f5f2', 
+                        borderColor: '#d6c2c3', // 更有质感的深石色边框
+                        borderWidth: 1.5,
                     },
                     emphasis: { 
-                        itemStyle: { areaColor: '#ffedf0', borderWidth: 3 },
+                        itemStyle: { areaColor: '#ffebec', shadowBlur: 20, shadowColor: 'rgba(0,0,0,0.1)' },
                         label: { show: true, color: '#874e58', fontWeight: 'bold' }
                     },
-                    data: globalTravelData.map(d => ({ name: d.province, itemStyle: { areaColor: '#ffccd5' } }))
+                    data: provinceWeight
                 }]
             };
             myChart.setOption(option);
         } catch (e) { console.error(e); }
     }
 
-    function renderSidebar(spots, title = "最近的回忆") {
-        sidebarTitle.innerHTML = `<span class="material-symbols-outlined text-pink-400">auto_awesome</span><span>${title}</span>`;
+    function renderSidebar(spots, title = "足迹清单") {
+        sidebarTitle.innerHTML = `<span class="material-symbols-outlined text-stone-400">auto_awesome</span><span>${title}</span>`;
         sidebarContent.innerHTML = spots.length ? spots.map((s, i) => `
-            <div class="bg-white/50 p-4 rounded-3xl border border-pink-100 shadow-sm hover:scale-[1.02] transition-transform animate-in fade-in slide-in-from-right duration-500" style="animation-delay: ${i*100}ms">
-                <img src="${s.photos[0]}" class="w-full h-32 object-cover rounded-2xl mb-3 shadow-inner" onerror="this.src='https://picsum.photos/400/200?random=${i}'">
+            <div class="bg-stone-50/50 p-4 rounded-3xl border border-stone-100 card-entry" style="animation-delay: ${i*80}ms">
+                <img src="${s.photos[0]}" class="w-full h-32 object-cover rounded-2xl mb-3 grayscale-[0.2] hover:grayscale-0 transition-all" onerror="this.src='https://picsum.photos/400/200?random=${i}'">
                 <h4 class="font-bold text-stone-800 text-lg mb-1">📍 ${s.location}</h4>
-                <p class="text-xs text-pink-500 font-bold mb-2 underline decoration-pink-200 underline-offset-4">${s.date}</p>
-                <p class="text-sm text-stone-600 leading-relaxed">${s.story}</p>
+                <p class="text-[13px] text-pink-500 font-bold mb-2">${s.date}</p>
+                <p class="text-sm text-stone-500 leading-relaxed">${s.story}</p>
             </div>
-        `).join('') : `<div class="text-center py-20 text-stone-400">点击地图城市查看回忆~</div>`;
+        `).join('') : `<div class="text-center py-20 text-stone-300">点击地图探索秘密</div>`;
     }
 
     renderMap('china', 'china');
-    // 初始加载所有回忆
     const allSpots = []; globalTravelData.forEach(p => p.cities.forEach(c => allSpots.push(...c.spots)));
     renderSidebar(allSpots);
 
@@ -211,23 +193,3 @@
             const provincePinyinMap = { '河南': 'henan', '江苏': 'jiangsu' };
             if (provincePinyinMap[params.name]) {
                 currentLevel = 'province';
-                renderMap(params.name, provincePinyinMap[params.name]);
-                backBtn.style.display = 'flex';
-            }
-        } else {
-            const cityName = params.name.replace(/(市|县|区)$/, '');
-            let spots = [];
-            globalTravelData.forEach(p => p.cities.forEach(c => { if(c.cityName === cityName) spots = c.spots }));
-            renderSidebar(spots, `${cityName} 的回忆`);
-        }
-    });
-
-    backBtn.onclick = () => {
-        currentLevel = 'china'; renderMap('china', 'china');
-        backBtn.style.display = 'none'; renderSidebar(allSpots);
-    };
-
-    window.onresize = () => myChart.resize();
-</script>
-</body>
-</html>
