@@ -4,9 +4,11 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
     <title>我们的足迹 - 专属纪念</title>
+    <!-- 引入 ECharts -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     
+    <!-- 字体同步首页：圆润英文 + 霞鹜文楷手写体 -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-lite-webfont@1.1.0/style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -25,13 +27,11 @@
     <style>
         body { font-family: "Quicksand", "LXGW WenKai Lite", sans-serif; background-color: #fcfbf7; overflow: hidden; }
         
-        /* 暖色调渐变背景，消除死白感 */
         .bg-gradient-soft {
             background: radial-gradient(circle at top right, #fff4e6 0%, #fcfbf7 45%),
                         radial-gradient(circle at bottom left, #f3f1ed 0%, #fcfbf7 45%);
         }
 
-        /* 顶部动态爱心与花瓣 (同步首页动画) */
         @keyframes floatUp {
             0% { transform: translateY(110vh) scale(0.6) rotate(-15deg); opacity: 0; }
             20% { opacity: 0.8; }
@@ -50,13 +50,19 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
         
-        /* 侧边卡片滑入动画 */
         .card-entry { animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body class="bg-gradient-soft min-h-screen relative flex flex-col antialiased">
 
+<!-- 优雅的 Toast 轻提示框 (默认隐藏在屏幕上方) -->
+<div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-xl px-6 py-3 rounded-full shadow-[0_10px_40px_rgba(135,78,88,0.15)] border border-pink-100 flex items-center gap-3 z-[200] transition-all duration-500 opacity-0 pointer-events-none -translate-y-10">
+    <span class="material-symbols-outlined text-pink-400">auto_awesome</span>
+    <span id="toast-msg" class="text-stone-700 font-bold text-sm tracking-wide">提示信息</span>
+</div>
+
+<!-- 背景动态点缀 -->
 <div class="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
     <div class="anim-petal bg-pink-200 w-3 h-3" style="left: 20%; animation-duration: 15s;"></div>
     <div class="anim-petal bg-rose-300 w-4 h-4" style="left: 60%; animation-duration: 20s; animation-delay: 3s;"></div>
@@ -64,6 +70,7 @@
     <span class="material-symbols-outlined anim-heart text-stone-300 text-4xl" style="left: 80%; animation-duration: 20s; animation-delay: 4s; font-variation-settings: 'FILL' 1;">favorite</span>
 </div>
 
+<!-- 顶部导航栏 -->
 <nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-12 py-4 max-w-7xl mx-auto bg-white/80 backdrop-blur-md">
     <div class="text-2xl font-bold text-stone-800 tracking-wider">我们的回忆</div>
     <ul class="hidden md:flex gap-8 items-center absolute left-1/2 transform -translate-x-1/2 font-medium text-stone-500 text-[15px]">
@@ -77,8 +84,10 @@
 
 <main class="flex-grow w-full max-w-7xl mx-auto px-4 md:px-8 pt-24 pb-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-2rem)]">
     
+    <!-- 左侧地图容器 -->
     <section class="lg:col-span-8 flex flex-col gap-4 h-full">
         <div class="bg-white/40 backdrop-blur-xl rounded-[2.5rem] border border-white/60 p-4 shadow-[0_15px_40px_rgba(0,0,0,0.04)] relative flex-grow overflow-hidden">
+            <!-- 智能返回按钮 -->
             <button id="back-btn" class="absolute top-6 left-6 z-[101] hidden bg-stone-800 hover:bg-pink-500 text-white px-5 py-2 rounded-full font-bold text-xs shadow-lg transition-all flex items-center gap-2">
                 <span class="material-symbols-outlined text-sm">arrow_back</span> <span id="back-btn-text">返回全国</span>
             </button>
@@ -86,6 +95,7 @@
         </div>
     </section>
 
+    <!-- 右侧回忆面板 -->
     <aside class="lg:col-span-4 flex flex-col gap-4 h-full overflow-hidden">
         <div class="bg-white/80 backdrop-blur-2xl rounded-[2.5rem] border border-white p-6 shadow-2xl flex flex-col h-full">
             <h2 id="sidebar-title" class="text-2xl font-bold text-stone-800 mb-6 flex items-center gap-2">
@@ -97,6 +107,7 @@
     </aside>
 </main>
 
+<!-- 移动端悬浮导航 -->
 <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-full px-4 py-2 bg-white/95 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] flex justify-around items-center z-50 md:hidden border border-stone-100">
     <a href="index.html" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full transition-colors"><span class="material-symbols-outlined">home</span><span class="text-[10px] font-bold mt-1">首页</span></a>
     <a href="map.html" class="flex flex-col items-center justify-center bg-[#8a5a63] text-white rounded-full w-12 h-12 scale-110 shadow-md transition-transform"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span><span class="text-[10px] font-bold mt-1">地图</span></a>
@@ -105,6 +116,21 @@
 </nav>
 
 <script>
+    // --- 优雅的 Toast 提示功能 ---
+    let toastTimeout;
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        document.getElementById('toast-msg').innerText = message;
+        toast.classList.remove('opacity-0', '-translate-y-10');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('opacity-100', 'translate-y-0');
+            toast.classList.add('opacity-0', '-translate-y-10');
+        }, 3000);
+    }
+
     // --- 1. 数据中心 ---
     const globalTravelData = [
         {
@@ -133,11 +159,10 @@
     ];
 
     // --- 2. 城市行政区划代码 (Adcode) 映射表：用于拉取市级详细地图 ---
-    // 你以后去新的城市，只需在这里加上城市的行政代码即可
     const cityAdcodeMap = {
         '郑州市': '410100',
         '徐州市': '320300',
-        '南京市': '320100' // 举例预留
+        '南京市': '320100' 
     };
 
     const myChart = echarts.init(document.getElementById('map-container'));
@@ -147,9 +172,9 @@
     const sidebarTitle = document.getElementById('sidebar-title');
     
     // --- 3. 核心状态机：三级下钻控制 ---
-    let currentLevel = 'china'; // 状态: china -> province -> city
-    let currentProvince = '';   // 记录当前所在的省中文名 (如: 河南)
-    let currentProvincePinyin = ''; // 记录当前省的拼音 (如: henan)
+    let currentLevel = 'china'; 
+    let currentProvince = '';   
+    let currentProvincePinyin = ''; 
 
     // 梯度算法：计算省份热力值
     const provinceWeight = globalTravelData.map(d => {
@@ -158,26 +183,26 @@
         return { name: d.province, value: spotCount };
     });
 
-    // --- 4. 地图渲染引擎 ---
+    // --- 4. 稳健的地图渲染引擎 ---
     async function renderMap(mapName, mapKey, isCity = false) {
         try {
             let url;
             if (mapKey === 'china') {
                 url = `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/china.json`;
             } else if (!isCity) {
-                // 加载省级数据
                 url = `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/province/${mapKey}.json`;
             } else {
-                // 加载市级数据 (通过阿里云 DataV 获取区县轮廓)
                 url = `https://geo.datav.aliyun.com/areas_v3/bound/${mapKey}_full.json`;
             }
 
             const response = await fetch(url);
+            if (!response.ok) throw new Error("网络请求失败");
+            
             const geoJson = await response.json();
             echarts.registerMap(mapName, geoJson);
 
             const option = {
-                // 仅在全国地图启用热力映射
+                // 热力映射：去过的次数越多颜色越深
                 visualMap: currentLevel === 'china' ? {
                     min: 0, max: 5, show: false,
                     inRange: { color: ['#f8f5f2', '#ffebec', '#ffccd5', '#874e58'] }
@@ -199,21 +224,35 @@
                     type: 'map', map: mapName, roam: true, scaleLimit: { min: 1, max: 8 },
                     itemStyle: { 
                         areaColor: '#f8f5f2', 
-                        borderColor: '#d6c2c3', // 石灰色的质感边框
+                        borderColor: '#d6c2c3', 
                         borderWidth: 1.5,
                     },
                     emphasis: { 
                         itemStyle: { areaColor: '#ffebec', shadowBlur: 20, shadowColor: 'rgba(0,0,0,0.1)' },
                         label: { show: true, color: '#874e58', fontWeight: 'bold' }
                     },
-                    // 仅全国层级传入热力值数据，省市层级保持默认底色
                     data: currentLevel === 'china' ? provinceWeight : [] 
                 }]
             };
-            myChart.setOption(option, true); // true 表示不合并上一次的配置，彻底重绘
+            myChart.setOption(option, true); 
+
+            // 只有当且仅当地图成功渲染后，才更新按钮状态，防止状态机错乱
+            if (isCity) {
+                currentLevel = 'city';
+                backBtnText.innerText = `返回${currentProvince}`;
+            } else if (mapKey !== 'china') {
+                currentLevel = 'province';
+                backBtn.style.display = 'flex';
+                backBtnText.innerText = "返回全国";
+            } else {
+                currentLevel = 'china';
+                backBtn.style.display = 'none';
+            }
+
         } catch (e) { 
-            console.error(e);
-            alert("目前还没有收录这个地方的详细地图哦~");
+            console.error("加载详细地图失败:", e);
+            // 触发优雅的 Toast 提示，而不是原先丑陋的 alert
+            showToast("暂无该区域的详细地图，已为您加载相关回忆 ✨");
         }
     }
 
@@ -230,7 +269,6 @@
         `).join('') : `<div class="text-center py-20 text-stone-300">还没有在这里留下故事哦</div>`;
     }
 
-    // 初始化渲染全国
     renderMap('china', 'china');
     const allSpots = []; globalTravelData.forEach(p => p.cities.forEach(c => allSpots.push(...c.spots)));
     renderSidebar(allSpots);
@@ -238,57 +276,45 @@
     // --- 6. 交互中心：三级下钻点击事件 ---
     myChart.on('click', function (params) {
         if (currentLevel === 'china') {
-            // 第 1 级下钻：全国 -> 省份
             const provincePinyinMap = { '河南': 'henan', '江苏': 'jiangsu', '浙江': 'zhejiang', '海南': 'hainan' };
             if (provincePinyinMap[params.name]) {
-                currentLevel = 'province';
                 currentProvince = params.name;
                 currentProvincePinyin = provincePinyinMap[params.name];
-                
                 renderMap(params.name, currentProvincePinyin);
-                backBtn.style.display = 'flex';
-                backBtnText.innerText = "返回全国";
             }
         } else if (currentLevel === 'province') {
-            // 第 2 级下钻：省份 -> 城市
-            // ECharts 返回的城市名可能带有"市"，为了兼容映射表，统一处理
             const cityName = params.name.endsWith('市') ? params.name : params.name + '市';
-            const pureCityName = cityName.replace('市', ''); // 用于查询你的 data 数据
+            const pureCityName = cityName.replace('市', ''); 
             const adcode = cityAdcodeMap[cityName];
             
-            // 筛选该城市的回忆数据
             let spots = [];
             globalTravelData.forEach(p => p.cities.forEach(c => { 
                 if(c.cityName === pureCityName) spots = c.spots 
             }));
 
-            if (adcode) {
-                // 如果有区县地图数据，进行下钻
-                currentLevel = 'city';
-                renderMap(cityName, adcode, true);
-                backBtnText.innerText = `返回${currentProvince}`;
-            }
-            
-            // 无论有没有城市地图数据，侧边栏都更新为该城市的故事
+            // 无论地图拉取成功与否，右侧面板一定更新，保证用户能看到回忆
             renderSidebar(spots, `${pureCityName} 的回忆`);
+
+            if (adcode) {
+                renderMap(cityName, adcode, true);
+            } else {
+                // 没有收录 Adcode，直接提示用户，保持在省份视图
+                showToast("未收录该市地图，已加载该市回忆 ✨");
+            }
         }
     });
 
     // --- 7. 智能返回按钮逻辑 ---
     backBtn.onclick = () => {
         if (currentLevel === 'city') {
-            // 从城市回到省份
-            currentLevel = 'province';
             renderMap(currentProvince, currentProvincePinyin);
-            backBtnText.innerText = "返回全国";
-            
-            // 侧边栏恢复显示该省的所有故事（可选，目前保持体验可以清空或提示）
-            renderSidebar([], `点击城市探索`);
+            // 恢复该省的数据
+            let provinceSpots = [];
+            const targetProvinceData = globalTravelData.find(p => p.province === currentProvince);
+            if(targetProvinceData) targetProvinceData.cities.forEach(c => provinceSpots.push(...c.spots));
+            renderSidebar(provinceSpots, `${currentProvince} 的回忆`);
         } else {
-            // 从省份回到全国
-            currentLevel = 'china';
             renderMap('china', 'china');
-            backBtn.style.display = 'none';
             renderSidebar(allSpots, "所有回忆");
         }
     };
