@@ -24,12 +24,14 @@
     
     <style>
         body { font-family: "Quicksand", "LXGW WenKai Lite", sans-serif; background-color: #fcfbf7; overflow: hidden; }
+        
+        /* 暖色调渐变背景，消除死白感 */
         .bg-gradient-soft {
             background: radial-gradient(circle at top right, #fff4e6 0%, #fcfbf7 45%),
                         radial-gradient(circle at bottom left, #f3f1ed 0%, #fcfbf7 45%);
         }
 
-        /* 顶部动态爱心与花瓣 */
+        /* 顶部动态爱心与花瓣 (同步首页动画) */
         @keyframes floatUp {
             0% { transform: translateY(110vh) scale(0.6) rotate(-15deg); opacity: 0; }
             20% { opacity: 0.8; }
@@ -37,6 +39,13 @@
         }
         .anim-heart { position: absolute; animation: floatUp linear infinite; z-index: 100; pointer-events: none; }
         
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            15% { opacity: 0.6; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+        .anim-petal { position: absolute; top: -10%; border-radius: 15px 0 15px 0; animation: fall linear infinite; z-index: 100; pointer-events: none; }
+
         #map-container { width: 100%; height: 100%; min-height: 500px; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
@@ -49,6 +58,8 @@
 <body class="bg-gradient-soft min-h-screen relative flex flex-col antialiased">
 
 <div class="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+    <div class="anim-petal bg-pink-200 w-3 h-3" style="left: 20%; animation-duration: 15s;"></div>
+    <div class="anim-petal bg-rose-300 w-4 h-4" style="left: 60%; animation-duration: 20s; animation-delay: 3s;"></div>
     <span class="material-symbols-outlined anim-heart text-pink-300 text-2xl" style="left: 15%; animation-duration: 16s; font-variation-settings: 'FILL' 1;">favorite</span>
     <span class="material-symbols-outlined anim-heart text-stone-300 text-4xl" style="left: 80%; animation-duration: 20s; animation-delay: 4s; font-variation-settings: 'FILL' 1;">favorite</span>
 </div>
@@ -61,14 +72,15 @@
         <li><a class="hover:text-pink-500 transition-colors" href="timeline.html">人生旅程</a></li>
         <li><a class="hover:text-pink-500 transition-colors" href="#">照片画廊</a></li>
     </ul>
-    <button class="text-pink-400 opacity-60"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span></button>
+    <button class="text-pink-400 opacity-60 animate-pulse"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span></button>
 </nav>
 
 <main class="flex-grow w-full max-w-7xl mx-auto px-4 md:px-8 pt-24 pb-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-2rem)]">
+    
     <section class="lg:col-span-8 flex flex-col gap-4 h-full">
         <div class="bg-white/40 backdrop-blur-xl rounded-[2.5rem] border border-white/60 p-4 shadow-[0_15px_40px_rgba(0,0,0,0.04)] relative flex-grow overflow-hidden">
-            <button id="back-btn" class="absolute top-6 left-6 z-[101] hidden bg-stone-800 text-white px-5 py-2 rounded-full font-bold text-xs shadow-lg transition-all flex items-center gap-2">
-                <span class="material-symbols-outlined text-sm">arrow_back</span> 返回全国
+            <button id="back-btn" class="absolute top-6 left-6 z-[101] hidden bg-stone-800 hover:bg-pink-500 text-white px-5 py-2 rounded-full font-bold text-xs shadow-lg transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">arrow_back</span> <span id="back-btn-text">返回全国</span>
             </button>
             <div id="map-container"></div>
         </div>
@@ -85,7 +97,15 @@
     </aside>
 </main>
 
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-full px-4 py-2 bg-white/95 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] flex justify-around items-center z-50 md:hidden border border-stone-100">
+    <a href="index.html" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full transition-colors"><span class="material-symbols-outlined">home</span><span class="text-[10px] font-bold mt-1">首页</span></a>
+    <a href="map.html" class="flex flex-col items-center justify-center bg-[#8a5a63] text-white rounded-full w-12 h-12 scale-110 shadow-md transition-transform"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span><span class="text-[10px] font-bold mt-1">地图</span></a>
+    <a href="timeline.html" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full transition-colors"><span class="material-symbols-outlined">auto_stories</span><span class="text-[10px] font-bold mt-1">旅程</span></a>
+    <a href="#" class="flex flex-col items-center justify-center text-stone-500 w-12 h-12 hover:bg-stone-50 rounded-full transition-colors"><span class="material-symbols-outlined">photo_library</span><span class="text-[10px] font-bold mt-1">画廊</span></a>
+</nav>
+
 <script>
+    // --- 1. 数据中心 ---
     const globalTravelData = [
         {
             province: "河南",
@@ -105,108 +125,172 @@
                     cityName: "徐州",
                     spots: [
                         { location: "苏宁广场与周边打卡", date: "2026-04", story: "这里的美食留下了很棒的味蕾回忆。无论是烧烤还是高铁风景，都很珍贵。", photos: ["images/xuzhou/xuzhou-2604-01.jpg"] },
-                        { location: "云龙湖漫步", date: "2026-04", story: "夕阳下的湖面非常美。", photos: ["images/xuzhou/xuzhou-2604-02.jpg"] }
+                        { location: "云龙湖漫步", date: "2026-04", story: "傍晚微风徐徐，手牵着手在湖边散步。", photos: ["images/xuzhou/xuzhou-2604-02.jpg"] }
                     ]
                 }
             ]
         }
     ];
 
+    // --- 2. 城市行政区划代码 (Adcode) 映射表：用于拉取市级详细地图 ---
+    // 你以后去新的城市，只需在这里加上城市的行政代码即可
+    const cityAdcodeMap = {
+        '郑州市': '410100',
+        '徐州市': '320300',
+        '南京市': '320100' // 举例预留
+    };
+
     const myChart = echarts.init(document.getElementById('map-container'));
     const backBtn = document.getElementById('back-btn');
+    const backBtnText = document.getElementById('back-btn-text');
     const sidebarContent = document.getElementById('sidebar-content');
     const sidebarTitle = document.getElementById('sidebar-title');
-    let currentLevel = 'china';
+    
+    // --- 3. 核心状态机：三级下钻控制 ---
+    let currentLevel = 'china'; // 状态: china -> province -> city
+    let currentProvince = '';   // 记录当前所在的省中文名 (如: 河南)
+    let currentProvincePinyin = ''; // 记录当前省的拼音 (如: henan)
 
-    // 梯度算法：计算省份权重
+    // 梯度算法：计算省份热力值
     const provinceWeight = globalTravelData.map(d => {
         let spotCount = 0;
         d.cities.forEach(c => spotCount += c.spots.length);
         return { name: d.province, value: spotCount };
     });
 
-    async function renderMap(mapName, mapKey) {
+    // --- 4. 地图渲染引擎 ---
+    async function renderMap(mapName, mapKey, isCity = false) {
         try {
-            let url = mapKey === 'china' 
-                ? `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/china.json` 
-                : `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/province/${mapKey}.json`;
+            let url;
+            if (mapKey === 'china') {
+                url = `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/china.json`;
+            } else if (!isCity) {
+                // 加载省级数据
+                url = `https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/province/${mapKey}.json`;
+            } else {
+                // 加载市级数据 (通过阿里云 DataV 获取区县轮廓)
+                url = `https://geo.datav.aliyun.com/areas_v3/bound/${mapKey}_full.json`;
+            }
+
             const response = await fetch(url);
             const geoJson = await response.json();
             echarts.registerMap(mapName, geoJson);
 
             const option = {
-                // 核心：增加 visualMap 视觉映射（梯度填充）
-                visualMap: {
-                    min: 0,
-                    max: 5,
-                    show: false,
-                    inRange: {
-                        color: ['#f8f5f2', '#ffebec', '#ffccd5', '#874e58'] // 从背景色到深玫瑰色的梯度
-                    }
-                },
+                // 仅在全国地图启用热力映射
+                visualMap: currentLevel === 'china' ? {
+                    min: 0, max: 5, show: false,
+                    inRange: { color: ['#f8f5f2', '#ffebec', '#ffccd5', '#874e58'] }
+                } : null,
                 tooltip: { 
                     trigger: 'item', 
                     formatter: (params) => {
-                        const weight = provinceWeight.find(p => p.name === params.name);
-                        return `<div style="font-weight:bold">${params.name}</div>${weight ? '已留下 ' + weight.value + ' 个足迹' : '尚未探索'}`;
+                        if(currentLevel === 'china') {
+                            const weight = provinceWeight.find(p => p.name === params.name);
+                            return `<div style="font-weight:bold">${params.name}</div>${weight ? '已留下 ' + weight.value + ' 个足迹' : '尚未探索'}`;
+                        }
+                        return `<div style="font-weight:bold">${params.name}</div>`;
                     },
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     borderColor: '#eee',
                     textStyle: { color: '#333', fontFamily: 'LXGW WenKai Lite' }
                 },
                 series: [{
-                    type: 'map', map: mapName, roam: true, scaleLimit: { min: 1, max: 6 },
+                    type: 'map', map: mapName, roam: true, scaleLimit: { min: 1, max: 8 },
                     itemStyle: { 
                         areaColor: '#f8f5f2', 
-                        borderColor: '#d6c2c3', // 更有质感的深石色边框
+                        borderColor: '#d6c2c3', // 石灰色的质感边框
                         borderWidth: 1.5,
                     },
                     emphasis: { 
                         itemStyle: { areaColor: '#ffebec', shadowBlur: 20, shadowColor: 'rgba(0,0,0,0.1)' },
                         label: { show: true, color: '#874e58', fontWeight: 'bold' }
                     },
-                    data: provinceWeight
+                    // 仅全国层级传入热力值数据，省市层级保持默认底色
+                    data: currentLevel === 'china' ? provinceWeight : [] 
                 }]
             };
-            myChart.setOption(option);
-        } catch (e) { console.error(e); }
+            myChart.setOption(option, true); // true 表示不合并上一次的配置，彻底重绘
+        } catch (e) { 
+            console.error(e);
+            alert("目前还没有收录这个地方的详细地图哦~");
+        }
     }
 
+    // --- 5. 侧边栏渲染引擎 ---
     function renderSidebar(spots, title = "足迹清单") {
         sidebarTitle.innerHTML = `<span class="material-symbols-outlined text-stone-400">auto_awesome</span><span>${title}</span>`;
         sidebarContent.innerHTML = spots.length ? spots.map((s, i) => `
             <div class="bg-stone-50/50 p-4 rounded-3xl border border-stone-100 card-entry" style="animation-delay: ${i*80}ms">
-                <img src="${s.photos[0]}" class="w-full h-32 object-cover rounded-2xl mb-3 grayscale-[0.2] hover:grayscale-0 transition-all" onerror="this.src='https://picsum.photos/400/200?random=${i}'">
+                <img src="${s.photos[0]}" class="w-full h-32 object-cover rounded-2xl mb-3 hover:scale-[1.03] transition-all shadow-sm" onerror="this.src='https://picsum.photos/400/200?random=${i}'">
                 <h4 class="font-bold text-stone-800 text-lg mb-1">📍 ${s.location}</h4>
                 <p class="text-[13px] text-pink-500 font-bold mb-2">${s.date}</p>
                 <p class="text-sm text-stone-500 leading-relaxed">${s.story}</p>
             </div>
-        `).join('') : `<div class="text-center py-20 text-stone-300">点击地图探索秘密</div>`;
+        `).join('') : `<div class="text-center py-20 text-stone-300">还没有在这里留下故事哦</div>`;
     }
 
+    // 初始化渲染全国
     renderMap('china', 'china');
     const allSpots = []; globalTravelData.forEach(p => p.cities.forEach(c => allSpots.push(...c.spots)));
     renderSidebar(allSpots);
 
+    // --- 6. 交互中心：三级下钻点击事件 ---
     myChart.on('click', function (params) {
         if (currentLevel === 'china') {
-            const provincePinyinMap = { '河南': 'henan', '江苏': 'jiangsu' };
+            // 第 1 级下钻：全国 -> 省份
+            const provincePinyinMap = { '河南': 'henan', '江苏': 'jiangsu', '浙江': 'zhejiang', '海南': 'hainan' };
             if (provincePinyinMap[params.name]) {
                 currentLevel = 'province';
-                renderMap(params.name, provincePinyinMap[params.name]);
+                currentProvince = params.name;
+                currentProvincePinyin = provincePinyinMap[params.name];
+                
+                renderMap(params.name, currentProvincePinyin);
                 backBtn.style.display = 'flex';
+                backBtnText.innerText = "返回全国";
             }
-        } else {
-            const cityName = params.name.replace(/(市|县|区)$/, '');
+        } else if (currentLevel === 'province') {
+            // 第 2 级下钻：省份 -> 城市
+            // ECharts 返回的城市名可能带有"市"，为了兼容映射表，统一处理
+            const cityName = params.name.endsWith('市') ? params.name : params.name + '市';
+            const pureCityName = cityName.replace('市', ''); // 用于查询你的 data 数据
+            const adcode = cityAdcodeMap[cityName];
+            
+            // 筛选该城市的回忆数据
             let spots = [];
-            globalTravelData.forEach(p => p.cities.forEach(c => { if(c.cityName === cityName) spots = c.spots }));
-            renderSidebar(spots, `${cityName} 的回忆`);
+            globalTravelData.forEach(p => p.cities.forEach(c => { 
+                if(c.cityName === pureCityName) spots = c.spots 
+            }));
+
+            if (adcode) {
+                // 如果有区县地图数据，进行下钻
+                currentLevel = 'city';
+                renderMap(cityName, adcode, true);
+                backBtnText.innerText = `返回${currentProvince}`;
+            }
+            
+            // 无论有没有城市地图数据，侧边栏都更新为该城市的故事
+            renderSidebar(spots, `${pureCityName} 的回忆`);
         }
     });
 
+    // --- 7. 智能返回按钮逻辑 ---
     backBtn.onclick = () => {
-        currentLevel = 'china'; renderMap('china', 'china');
-        backBtn.style.display = 'none'; renderSidebar(allSpots);
+        if (currentLevel === 'city') {
+            // 从城市回到省份
+            currentLevel = 'province';
+            renderMap(currentProvince, currentProvincePinyin);
+            backBtnText.innerText = "返回全国";
+            
+            // 侧边栏恢复显示该省的所有故事（可选，目前保持体验可以清空或提示）
+            renderSidebar([], `点击城市探索`);
+        } else {
+            // 从省份回到全国
+            currentLevel = 'china';
+            renderMap('china', 'china');
+            backBtn.style.display = 'none';
+            renderSidebar(allSpots, "所有回忆");
+        }
     };
 
     window.onresize = () => myChart.resize();
